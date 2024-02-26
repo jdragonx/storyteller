@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+openai = "~=1.7.1"
+click = "*"
+numpy = "*"
+pydub = "*"
+moviepy = "*"
+google-api-python-client = "*"
+google-auth-oauthlib = "*"
+pillow = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"

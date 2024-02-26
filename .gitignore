@@ -1,0 +1,14 @@
+# Ignore all .tmp folders
+**/.tmp/
+
+# Ignore all folders containing the word 'video' in their name
+**/*video*/
+
+# Ignore any .env file
+**/.env
+
+# Ignore any folder containing 'historia' in its name
+**/*historia*/
+
+# Ignore any folder containing 'compilaciones' in its name
+**/*compilaciones*/
