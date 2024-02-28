@@ -23,13 +23,14 @@ persona_narracion = np.random.choice(persona_narracion, p=probabilities)
 @click.command()
 @click.option('--num_stories', '-n', default=1, type=int, help='Número de historias a crear')
 @click.option('--short', '-s', is_flag=True, help='Crea historias cortas')
-def main(num_stories, short):
+@click.option('--do_trends', '-t', is_flag=True, help='Crea historias basadas en tendencias')
+def main(num_stories, short, do_trends):
     
     for i in range(num_stories):
         print(f"Creando historia {i+1} de {num_stories}")
-        create_story(short)
+        create_story(short, do_trends)
 
-def create_story(short: bool):
+def create_story(short: bool, do_trends: bool):
     # Creación del outline
     print("Creando outline...")
     details = [
@@ -113,7 +114,7 @@ def create_story(short: bool):
         'cosechas terroríficas',
         'laboratorio genético oculto',
         'carreteras desiertas',
-        'pandemia sobrenatural',
+        'pandemia',
         'prisión espectral',
         'tecnología fantasma',
         'criaturas de la cripta',
@@ -121,10 +122,26 @@ def create_story(short: bool):
         'búnkeres poseídos',
         'robots con inteligencia artificial malévola',
         'juegos diabólicos',
+        'juguetes siniestros',
+        'videojuegos',
+        'minecraft',
     ]
 
-    n_details = random.randint(0, 1)
-    details: list = random.sample(details, n_details)
+    trends = [
+        'minecraft',
+        'viña del mar',
+        'poppy playtime',
+        'fortnite',
+        'fútbol',
+        'anime',
+        'roblox',
+        'GTA 5',
+        'bromas',
+        'brawl stars',
+    ]
+
+    n_details = 1 if do_trends else random.randint(0, 1)
+    details: list = random.sample(trends if do_trends else details, n_details)
 
     details_instructions = f", siempre te aseguras de poner todos los siguientes detalles en el outline: {', '.join(details).lower()}" if len(details) else ""
     format_instructions = '{"outline": "aquí pones el outline, de forma seguida y continua, sin bullet points ni numeración.", "titulo": "aquí pondrás el título de la historia, debes tener en cuenta que debe ser un título muy intrigante, el cual llame la atención enseguida con solo verlo y obligue a las personas abrir la historia para saber de qué se trata. La historia será publicada online por lo que el título es extremadamente importante, piensa que será narrada en un video de youtube, por eso el título debe ser el que daría los mejores resultados para que los usuarios de youtube que lo vean den click en el video. Además debe ser un título corto, máximo de 7 palabras."}'

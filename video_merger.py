@@ -5,6 +5,16 @@ from pydub import AudioSegment
 from openai import OpenAI
 import time
 import math
+from moviepy.video.fx.crop import crop
+
+def crop_video(clip):
+    # Check if the video is square
+    if clip.size[0] == clip.size[1]:
+        # Crop the video to 16:9 format
+        new_width = clip.size[0]
+        new_height = int(new_width * 9 / 16)
+        clip = crop(clip, width=new_width, height=new_height, x_center=clip.size[0]/2, y_center=clip.size[1]/2)
+    return clip
 
 client = OpenAI()
 max_retries = 5
@@ -22,8 +32,9 @@ def main(dir, output_file):
     # Obtener la lista de archivos de video en el directorio
     video_files = [file for file in os.listdir(dir) if file.endswith(".mp4")]
     
-    # Cargar cada video y agregar título
+    # Cargar cada video, recortar si el ratio no es el correcto, y agregar título
     video_clips = [VideoFileClip(os.path.join(dir, file)) for file in video_files]
+    video_clips = [crop_video(clip) for clip in video_clips]
     video_clips_with_titles = [add_title(clip, file.split('#')[0].strip()) for file, clip in zip(video_files, video_clips)]
 
     # Concatenar clips de video
@@ -69,7 +80,7 @@ def create_narration(texto, audio_path, voice: str):
 # Function to add title to a video
 def add_title(video_clip, title_text, voice=default_voice):
     # Create narration for title
-    narration_path = "narration.mp3"
+    narration_path = ".tmp/.discard/narration.mp3"
     create_narration(title_text, narration_path, voice)
     narration_audio = AudioFileClip(narration_path)
 
