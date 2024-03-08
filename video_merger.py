@@ -82,7 +82,7 @@ def add_title(video_clip, title_text, voice=default_voice):
     # Create narration for title
     narration_path = ".tmp/.discard/narration.mp3"
     create_narration(title_text, narration_path, voice)
-    narration_audio = AudioFileClip(narration_path)
+    narration_audio = AudioFileClip(narration_path).apply_gain(10)
 
     # Add padding of 3 seconds on each side of the narration
     silence = AudioClip(lambda t: 0, duration=1)  # Create an AudioClip of silence
