@@ -52,21 +52,27 @@ def main(file, dir, skip_images, voice, create_portrait):
                 traceback.print_exc()
                 continue
 
-def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool):
-    with open(file, 'r') as f:
-        historia = f.read()
-    oraciones = [oracion.strip() for oracion in historia.split('.') if oracion.strip().replace('\n', '') != '']
+def merge_oraciones(oraciones: list[str]):
+    if len(oraciones) == 1:
+        return oraciones
     merged_oraciones = []
-
     for i in range(len(oraciones)):
         words = oraciones[i].split()
-        if len(words) <= 7:
+        if len(words) <= 8:
             if i == len(oraciones) - 1:
                 merged_oraciones[-1] += ' ' + oraciones[i]
             else:
                 oraciones[i+1] = oraciones[i] + ' ' + oraciones[i+1]
         else:
             merged_oraciones.append(oraciones[i])
+    return merged_oraciones if len(merged_oraciones) == len(oraciones) else merge_oraciones(merged_oraciones)
+
+
+def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool):
+    with open(file, 'r') as f:
+        historia = f.read()
+    oraciones = [oracion.strip() for oracion in historia.split('.') if oracion.strip().replace('\n', '') != '']
+    merged_oraciones = merge_oraciones(oraciones)
     
     titulo = file.split('/')[-1].split('.')[0]
     image_dir = f".tmp/images/{titulo}"

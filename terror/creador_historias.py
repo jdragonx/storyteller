@@ -124,20 +124,15 @@ def create_story(short: bool, do_trends: bool):
         'juegos diabólicos',
         'juguetes siniestros',
         'videojuegos',
-        'minecraft',
+        'broma que sale mal',
     ]
 
     trends = [
+        'deep web',
+        'free fire',
+        'ciudad abandonada',
         'minecraft',
-        'viña del mar',
-        'poppy playtime',
-        'fortnite',
-        'fútbol',
-        'anime',
-        'roblox',
-        'GTA 5',
-        'bromas',
-        'brawl stars',
+        'megamente',
     ]
 
     n_details = 1 if do_trends else random.randint(0, 1)
@@ -149,7 +144,7 @@ def create_story(short: bool, do_trends: bool):
     longitud = " La historia va a ser leída con una duración de entre 10 a 15 minutos y tendrá entre 1000 y 3000 palabras, con varios párrafos." if not short else " La historia va a ser leída con una duración de 30 segundos y tendrá muy pocas palabras, con un único párrafo."
 
     messages = [
-      {'role': 'system', 'content': f'Eres un chabot que crea un outline para una historia de terror{details_instructions}.{longitud}\n\nDebes tener en cuenta que la historia sea totalmente escalofriante, con muchos sucesos inesperados y originales, dejando de lado los clásicos clichés y temáticas del terror, y usando nombres completamente inventados para los personajes que no evoquen a otras historias o peliculas. Añade diálogos cuando creas necesario. NUNCA ESCRIBES FRASES NI ORACIONES REDUNDANTES. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Nunca cometes errores ortográficos ni gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta. Tus historias siempre están escritas en tiempo pasado, nunca en tiempo presente, escribes con el estilo de un estudiante de colegio. Tu respuesta es en formato json, usas el siguiente formato, este formato será utilizado en python y parseado automáticamente. Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions}'},
+      {'role': 'system', 'content': f'Eres un chabot que crea un outline para una historia de terror{details_instructions}.{longitud}\n\nDebes tener en cuenta que la historia sea totalmente escalofriante, con sucesos inesperados y originales, dejando de lado los clásicos clichés y temáticas del terror, y usando nombres completamente inventados para los personajes que no evoquen a otras historias o peliculas. Añade diálogos cuando creas necesario. NUNCA ESCRIBES FRASES NI ORACIONES REDUNDANTES. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Siempre evitas cometer errores ortográficos o gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta. Tus historias siempre están escritas en tiempo pasado, escribes con el estilo de un estudiante de colegio. Tu respuesta es en formato json, usas el siguiente formato, este formato será utilizado en python y parseado automáticamente. Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions}'},
     ]
     
     try:
@@ -174,7 +169,7 @@ def create_story(short: bool, do_trends: bool):
     print("Creando historia...")
     format_instructions_historia = '{"titulo": "aquí pondrás el título de la historia", "historia": "Aquí pones la historia."}'
     messages = [
-      {'role': 'system', 'content': f'Eres un chabot que crea una historia de terror a partir de un outline y un título.{longitud} Expande cada tema del outline en su totalidad y con extremo detalle. El título de la historia es "{titulo}", y el outline es el siguiente: "{outline}".\n\n\nDebes tener en cuenta que la historia sea totalmente escalofriante, con muchos sucesos inesperados y originales, dejando de lado los clásicos clichés y temáticas del terror, y usando nombres completamente inventados para los personajes que no evoquen a otras historias o peliculas. Añade diálogos cuando creas necesario. NUNCA ESCRIBES FRASES NI ORACIONES REDUNDANTES. NUNCA USAS LA PALABRA "SUSURROS". Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que no deben haber cosas descriptivas como "el protagonista", "la historia termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Nunca cometes errores ortográficos ni gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta. Tus historias siempre están escritas en tiempo pasado, nunca en tiempo presente, escribes con el estilo de un estudiante de colegio. Tu respuesta es en formato json, usas el siguiente formato, este formato será utilizado en python y parseado automáticamente. Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions_historia}'},
+      {'role': 'system', 'content': f'Eres un chabot que crea una historia de terror a partir de un outline y un título.{longitud} Expande cada tema del outline en su totalidad y con extremo detalle. El título de la historia es "{titulo}", y el outline es el siguiente: "{outline}".\n\n\nDebes tener en cuenta que la historia sea totalmente escalofriante, con sucesos inesperados y originales, dejando de lado los clásicos clichés y temáticas del terror, y usando nombres completamente inventados para los personajes que no evoquen a otras historias o peliculas. Añade diálogos cuando creas necesario. SIEMPRE EVITAS ESCRIBIR FRASES NI ORACIONES REDUNDANTES. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que siempre evitas usar frases descriptivas como "el protagonista", "la historia termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Siempre evitas cometer errores ortográficos o gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta, y siempre en idioma español sin errores de codificación. Tus historias siempre están escritas en tiempo pasado, escribes con el estilo de un estudiante de colegio. Tu respuesta es en formato json, usas el siguiente formato, este formato será utilizado en python y parseado automáticamente. Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions_historia}'},
     ]
     
     try:
@@ -226,7 +221,7 @@ def increase_length(historia: str):
     print("Extendiendo historia...")
     format_instructions_historia_larga = '{"historia_expandida": "aquí pones la historia expandida, recuerda que debe ser mucho más extensa que la original, la nueva historia debe ser al menos 10 veces más extensa que la original"}'
     messages = [
-      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña e instantáneamente la transformas en un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en historias grandes, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre expandes cada oración de la historia, sin dejar ninguna oración sin haber sido expandida, para poder construir así una atmósfera completamente envolvente. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que no deben haber cosas descriptivas como "el protagonista", "la historia termina con...", "el relato termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Nunca cometes errores ortográficos ni gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta, y siempre en idioma español sin errores de codificación. Tus historias siempre están escritas en tiempo pasado, nunca en tiempo presente, escribes con el estilo de un estudiante de colegio. Siempre respondes en formato json, el cual es un formato perfecto y puede ser parseado directamente en python. Usas varios párrafos para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
+      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña e instantáneamente la transformas en un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en historias grandes, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre expandes cada oración de la historia, sin dejar ninguna oración sin haber sido expandida, para poder construir así una atmósfera completamente envolvente. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que siempre evitas usar frases descriptivas como "el protagonista", "la historia termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Siempre evitas cometer errores ortográficos o gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta, y siempre en idioma español sin errores de codificación. Tus historias siempre están escritas en tiempo pasado, escribes con el estilo de un estudiante de colegio. Siempre respondes en formato json, el cual es un formato perfecto y puede ser parseado directamente en python. Usas varios párrafos para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
     
     try:
