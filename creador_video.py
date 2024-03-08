@@ -44,6 +44,7 @@ def main(file, dir, skip_images, voice, create_portrait):
             return
     else:
         for file in os.listdir(dir):
+            print("*" * 50)
             print(f"Creando video para {file}")
             try:
                 create_video(os.path.join(dir, file), skip_images, voice, create_portrait)
