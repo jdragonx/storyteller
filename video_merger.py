@@ -57,7 +57,7 @@ def create_narration(texto, audio_path, voice: str):
             )
             temporal_path = f".tmp/.discard/temp_audio.mp3"
             response.stream_to_file(temporal_path)
-            audio = AudioSegment.from_mp3(temporal_path)
+            audio = AudioSegment.from_mp3(temporal_path).apply_gain(10)
 
             if combined_audio is None:
                 combined_audio = audio
@@ -82,7 +82,7 @@ def add_title(video_clip, title_text, voice=default_voice):
     # Create narration for title
     narration_path = ".tmp/.discard/narration.mp3"
     create_narration(title_text, narration_path, voice)
-    narration_audio = AudioFileClip(narration_path).apply_gain(10)
+    narration_audio = AudioFileClip(narration_path)
 
     # Add padding of 3 seconds on each side of the narration
     silence = AudioClip(lambda t: 0, duration=1)  # Create an AudioClip of silence
