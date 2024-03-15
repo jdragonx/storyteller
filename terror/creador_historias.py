@@ -125,9 +125,6 @@ def create_story(short: bool, do_trends: bool):
         'juguetes siniestros',
         'videojuegos',
         'broma que sale mal',
-    ]
-
-    trends = [
         'amorío',
         'videojuego',
         'enfermo mental',
@@ -145,6 +142,10 @@ def create_story(short: bool, do_trends: bool):
         'gay',
         'transexual',
         'tema_removido',
+    ]
+
+    trends = [
+        'minecraft',
     ]
 
     n_details = 1 if do_trends else random.randint(0, 1)
@@ -201,13 +202,14 @@ def create_story(short: bool, do_trends: bool):
     
     # Either increase the length of the story if it's too short, or reduce it if it's too long, depending on the 'short' parameter
     current_attempt = 0
-    while historia and (len(re.findall(r'\b\w+\b', historia)) < 500) and not short and current_attempt < 10:
-        historia = increase_length(historia)
-        current_attempt += 1
-    
-    while historia and (len(re.findall(r'\b\w+\b', historia)) > 110) and short and current_attempt < 10:
-        historia = reduce_length(historia)
-        current_attempt += 1
+    if not short:
+        while historia and (len(re.findall(r'\b\w+\b', historia)) < 500) and current_attempt < 10:
+            historia = increase_length(historia)
+            current_attempt += 1
+    else:
+        while historia and (len(re.findall(r'\b\w+\b', historia)) > 110) and current_attempt < 10:
+            historia = reduce_length(historia)
+            current_attempt += 1
 
     # Define the base file name
     base_filename = f'./historias/{titulo} #terror #miedo.txt'
