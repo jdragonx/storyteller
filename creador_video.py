@@ -59,7 +59,7 @@ def merge_oraciones(oraciones: list[str]):
     merged_oraciones = []
     for i in range(len(oraciones)):
         words = oraciones[i].split()
-        if len(words) <= 8:
+        if len(words) <= 10:
             if i == len(oraciones) - 1:
                 merged_oraciones[-1] += ' ' + oraciones[i]
             else:
@@ -306,44 +306,7 @@ def create_video_from_images(images: list[str], durations_per_image: list[int] |
     # Create a list of clips
     clips = []
     for i, (img, dur) in enumerate(zip(images, durations_per_image)):
-        interval = 3  # duration of each clip
-
-        lightning_clips = []
-        current_color = 0
-        number_frames = 24
-        change = 4/number_frames
-        negative = True
-        for j in range (number_frames):
-            if negative:
-                current_color = current_color - change/2
-                if current_color <= -1:
-                    current_color = -1
-                    clip = colorx(ImageClip(img).set_duration(2), current_color)
-                    lightning_clips.append(clip)
-                    negative = False
-                    continue
-                    
-            else:
-                current_color = current_color + change
-                if current_color >= 1:
-                    current_color = 1
-                    negative = True
-                    
-            # Create an ImageClip
-            clip = colorx(ImageClip(img).set_duration(1/24), current_color)
-            lightning_clips.append(clip)
-        lightning = concatenate_videoclips(lightning_clips)
-
-        # Calculate the total number of intervals
-        internal_clips = []
-        total_intervals = int(dur / interval) + 1
-        for j in range(total_intervals):
-            duration = random.uniform(2, 4)
-            internal_clips.append(ImageClip(img).set_duration(duration))
-            internal_clips.append(lightning)
-
-        # Concatenate the clips to create the final clip for this image
-        clip = concatenate_videoclips(internal_clips).set_duration(dur)
+        clip = ImageClip(img).set_duration(dur)
         clip = add_scroll_effect(clip, start_clip=i%2==0, ratio=ratio)
 
         clips.append(clip)

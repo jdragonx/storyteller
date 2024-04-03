@@ -16,7 +16,7 @@ choices = [' El final debe ser terrorífico lleno de miedo e intriga de las cosa
 probabilities = [0.6, 0.4]  # probabilities for each choice
 tipo_de_final = np.random.choice(choices, p=probabilities)
 
-persona_narracion = ['primera persona, de parte de un hombre', 'tercera persona']
+persona_narracion = ['primera persona, de parte de un hombre', 'tercera persona, como narrador externo']
 probabilities = [0.5, 0.5]  # probabilities for each choice
 persona_narracion = np.random.choice(persona_narracion, p=probabilities)
 
@@ -131,21 +131,23 @@ def create_story(short: bool, do_trends: bool):
         'párroco',
         'religión',
         'tema_removido',
-        'niño obeso',
         'tema_removido',
         'tema_removido',
-        'eutanasia',
-        'pena de muerte',
         'tema_removido',
         'tema_removido',
-        'feminista',
-        'gay',
-        'transexual',
         'tema_removido',
+        'vacunas',
+        'mr beast',
+        'cuevas',
+        'free fire',
+        'guerra',
+        'psicópata',
+        'manipulación',
+        'trampas letales',
+        'juegos mortales'
     ]
 
     trends = [
-        'minecraft',
     ]
 
     n_details = 1 if do_trends else random.randint(0, 1)
@@ -263,7 +265,7 @@ def reduce_length(historia: str):
     print("Reduciendo historia...")
     format_instructions_historia_corta = '{"historia_reducida": "aquí pones la historia reducida, recuerda que debe ser más corta que la original, debe tener alrededor de 100 palabras, con un único párrafo."}'
     messages = [
-      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia grande e instantáneamente la transformas en una historia pequeña que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias grandes sean reducidas en historias pequeñas, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que siempre evitas usar frases descriptivas como "el protagonista", "la historia termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Siempre evitas cometer errores ortográficos o gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta, y siempre en idioma español sin errores de codificación. Tus historias siempre están escritas en tiempo pasado, escribes con el estilo de un estudiante de colegio. Siempre respondes en formato json, el cual es un formato perfecto y puede ser parseado directamente en python. Usas un único párrafo para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_corta}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
+      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia grande e instantáneamente la transformas en una historia pequeña que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias grandes sean reducidas en historias un poco más pequeñas, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre narras tus historias en {persona_narracion}.{tipo_de_final} Ten en cuenta que esta es la historia final, así que siempre evitas usar frases descriptivas como "el protagonista", "la historia termina con...", "dejando al lector...", etc., ya que no estás describiendo algo para alguien más, estás mostrando la historia al lector final. Siempre evitas cometer errores ortográficos o gramaticales en tu historia, ni siquiera en el título, toda la redacción es siempre perfecta, y siempre en idioma español sin errores de codificación. Tus historias siempre están escritas en tiempo pasado, escribes con el estilo de un estudiante de colegio. Siempre respondes en formato json, el cual es un formato perfecto y puede ser parseado directamente en python. Usas un único párrafo para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_corta}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
 
     try:
