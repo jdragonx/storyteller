@@ -4,7 +4,6 @@ from openai import OpenAI
 import json
 import random
 import click
-import ast
 import os
 import numpy as np
 import datetime
@@ -177,15 +176,13 @@ def create_story(short: bool, do_trends: bool):
             response_format={"type": "json_object"},
             seed=datetime.datetime.now().timestamp().__int__()
         )
-        parsed_response = json.loads(response.choices[0].message.content)
-        titulo = parsed_response['titulo']
-        outline = parsed_response['outline']
     except Exception as e:
         print(f"Error creating chat completion: {e}")
         return
 
     parsed_response = json.loads(response.choices[0].message.content)
-    titulo = parsed_response['titulo']
+
+    titulo = re.sub(r'[:";\'`´’‘“”«»(){}\[\]¡!¿?\\/]', '', parsed_response['titulo'])
     outline = parsed_response['outline']
 
     # Creación de la historia a partir del outline

@@ -3,18 +3,10 @@ import pickle
 from openai import OpenAI
 import json
 import click
-import base64
 import time
 import math
-from moviepy.editor import ImageClip, AudioFileClip, VideoClip
-from moviepy.video.compositing.concatenate import concatenate_videoclips
-from moviepy.video.fx.colorx import colorx
 import os
-import random
-from pydub import AudioSegment
-import itertools
 import traceback
-from math import sin, pi
 
 max_retries = 100
 client = OpenAI()
@@ -34,17 +26,17 @@ def main(file, dir):
         try:
             create_description(file)
         except Exception as e:
-            print(f"Error creando descripcion para {file}: {e}. Exiting...")
+            print(f"Error creando descripciones para {file}: {e}. Exiting...")
             traceback.print_exc()
             return
     else:
         for file in os.listdir(dir):
             print("*" * 50)
-            print(f"Creando descripcion para {file}")
+            print(f"Creando descripciones para {file}")
             try:
                 create_description(os.path.join(dir, file))
             except Exception as e:
-                print(f"Error creando descripcion para {file}: {e}. Skipping...")
+                print(f"Error creando descripciones para {file}: {e}. Skipping...")
                 traceback.print_exc()
                 continue
 
@@ -56,9 +48,9 @@ def merge_oraciones(oraciones: list[str]):
         words = oraciones[i].split()
         if len(words) <= 10:
             if i == len(oraciones) - 1:
-                merged_oraciones[-1] += ' ' + oraciones[i]
+                merged_oraciones[-1] += '. ' + oraciones[i]
             else:
-                oraciones[i+1] = oraciones[i] + ' ' + oraciones[i+1]
+                oraciones[i+1] = oraciones[i] + '. ' + oraciones[i+1]
         else:
             merged_oraciones.append(oraciones[i])
     return merged_oraciones if len(merged_oraciones) == len(oraciones) else merge_oraciones(merged_oraciones)
@@ -69,19 +61,22 @@ def create_description(file: str):
         historia = f.read()
     oraciones = [oracion.strip() for oracion in historia.split('.') if oracion.strip().replace('\n', '') != '']
     merged_oraciones = merge_oraciones(oraciones)
+
+    story_sections = [section_list.join('. ') for section_list in merged_oraciones[::100]]
     
-    titulo = file.split('/')[-1].split('.')[0]
+    titulo = file.split('/')[-1].split('.')[0].split('#')[0].strip()
     description_dir = f".tmp/descripciones/{titulo}"
 
     print("Creando descripciones...")
     descripciones = []
-    for oracion in merged_oraciones:
-        descripcion = get_description(historia, oracion)
-        if descripcion is not None:
-            descripciones.append(descripcion)
-            descripcion_anterior = descripcion
-        else:
-            descripciones.append(descripcion_anterior)
+    for section in story_sections:
+        for oracion in merged_oraciones:
+            descripcion = get_description(section, oracion)
+            if descripcion is not None:
+                descripciones.append(descripcion)
+                descripcion_anterior = descripcion
+            else:
+                descripciones.append(descripcion_anterior)
     
     pickle.dump(descripciones, open(f"{description_dir}.pkl", 'wb'))
 
@@ -102,9 +97,6 @@ def get_description(historia: str, oracion: str):
             )
             parsed_response = json.loads(response.choices[0].message.content)
             prompt = parsed_response['description']
-
-            prompt_addition = "Realistic looking image with great and perfect detail. "
-            prompt = prompt_addition + prompt[:4000 - len(prompt_addition)]
             return prompt
         except Exception as e:
             print(f"Error creating description: {e}. Retrying...")
