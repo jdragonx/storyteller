@@ -27,10 +27,12 @@ default_voice = voices[os.getcwd().split('/')[-1]]
 
 @click.command()
 @click.option('--dir', '-d', default="videos_ya_subidos", type=str, help='Directorio donde están los archivos de video')
-@click.option('--output_file', '-o', default="compilaciones/Compilacion.mp4", type=str, help='Nombre del archivo de video de salida')
+@click.option('--output_file', '-o', type=str, help='Nombre del archivo de video de salida')
 def main(dir, output_file):
     # Obtener la lista de archivos de video en el directorio
     video_files = [file for file in os.listdir(dir) if file.endswith(".mp4")]
+
+    print("Compilando los siguientes videos:\n" + '\n'.join([video_file.split('#')[0].strip() for video_file in video_files]))
     
     # Cargar cada video, recortar si el ratio no es el correcto, y agregar título
     video_clips = [VideoFileClip(os.path.join(dir, file)) for file in video_files]
@@ -39,6 +41,9 @@ def main(dir, output_file):
 
     # Concatenar clips de video
     final_video = concatenate_videoclips(video_clips_with_titles)
+
+    if not output_file:
+        output_file = f"compilaciones/{video_files[0].split('#')[0].strip()}, y otros relatos de terror #terror #miedo.mp4"
 
     # Escribir el video final a un archivo
     final_video.write_videofile(output_file, codec='libx264', fps=24)
@@ -85,8 +90,8 @@ def add_title(video_clip, title_text, voice=default_voice):
     narration_audio = AudioFileClip(narration_path)
 
     # Add padding of 3 seconds on each side of the narration
-    silence = AudioClip(lambda t: 0, duration=1)  # Create an AudioClip of silence
-    padded_narration_audio = concatenate_audioclips([silence, narration_audio, silence, silence])  # Concatenate the silence and the narration
+    silence = AudioClip(lambda t: 0, duration=2)  # 2 seconds of silence
+    padded_narration_audio = concatenate_audioclips([silence, narration_audio, silence])  # Concatenate the silence and the narration
 
     total_duration = padded_narration_audio.duration
 

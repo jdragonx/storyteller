@@ -157,7 +157,7 @@ def create_story(short: bool, do_trends: bool):
         'mr beast'
     ]
 
-    n_details = 1 if do_trends else random.randint(0, 1)
+    n_details = 1 if do_trends else random.choices([0, 1], weights=[4, 1])[0]
     details: list = random.sample(trends if do_trends else details, n_details)
 
     details_instructions = f", siempre te aseguras de poner todos los siguientes detalles en el outline: {', '.join(details).lower()}" if len(details) else ""
@@ -182,7 +182,7 @@ def create_story(short: bool, do_trends: bool):
 
     parsed_response = json.loads(response.choices[0].message.content)
 
-    titulo = re.sub(r'[:";\'`´’‘“”«»(){}\[\]¡!¿?\\/]', '', parsed_response['titulo'])
+    titulo = parsed_response['titulo']
     outline = parsed_response['outline']
 
     # Creación de la historia a partir del outline

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import re
 from openai import OpenAI
 import json
 import click
@@ -252,7 +253,7 @@ def create_audio(audio_file_path: str, titulo: str):
         if len(merged_music) >= len(audio):
             break
 
-    merged_music = merged_music.fade_in(2000).fade_out(2000)
+    merged_music = merged_music.fade_in(2000).fade_out(2000).apply_gain(-2)
     overlapped_audio = audio.overlay(merged_music)
     overlapped_audio.export(f".tmp/audios_con_musica/{titulo}.mp3", format='mp3')
 
@@ -260,6 +261,11 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
     if start_times is None:
         print("No start times provided. Exiting...")
         return
+    # We first check if the image dir exists, if not we try using the image dir scaping special characters
+    if not os.path.exists(image_dir):
+        last_folder_from_path = re.sub(r'[:";\'`´’‘“”«»(){}\[\]¡!¿?\\/áéíóúÁÉÍÓÚñÑàèìòùäëïöüçãõâêîôû]', '', image_dir.split("/")[-1])
+        image_dir = image_dir.replace(image_dir.split("/")[-1], last_folder_from_path)
+
     images = os.listdir(image_dir)
     images = [os.path.join(image_dir, image) for image in images]
     images = sorted(images, key=lambda x: int(x.split('/')[-1].split('.')[0]))
