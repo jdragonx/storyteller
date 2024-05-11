@@ -263,7 +263,7 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
         return
     # We first check if the image dir exists, if not we try using the image dir scaping special characters
     if not os.path.exists(image_dir):
-        last_folder_from_path = re.sub(r'[:";\'`´’‘“”«»(){}\[\]¡!¿?\\/áéíóúÁÉÍÓÚñÑàèìòùäëïöüçãõâêîôû]', '', image_dir.split("/")[-1])
+        last_folder_from_path = re.sub(r'[:",;\'`´’‘“”«»(){}\[\]¡!¿?\\/áéíóúÁÉÍÓÚñÑàèìòùäëïöüçãõâêîôû]', '', image_dir.split("/")[-1])
         image_dir = image_dir.replace(image_dir.split("/")[-1], last_folder_from_path)
 
     images = os.listdir(image_dir)

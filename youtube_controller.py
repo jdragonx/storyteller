@@ -4,6 +4,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
+import pickle
 
 # Configurar la API de YouTube
 api_service_name = "youtube"
@@ -11,11 +12,10 @@ api_version = "v3"
 
 # Descripción predeterminada para videos sin descripción
 DEFAULT_DESCRIPTION = (
-    "Terror para helar la sangre. #horrorstories #terror #miedo "
-    "#paranormal #creepypasta\n"
-    "Visita nuestro blog: https://terror-ia.blogspot.com/\n"
-    "Musica de terror creative commons\n"
-    "https://soundcloud.com/royaltyfreebackgroundmusic/sets/creative-commons-music-273\n"
+    "Relato de terror para helar la sangre. #horrorstories #terror #miedo "
+    "#paranormal #creepypasta\n\n"
+    "Musica de terror creative commons\n\n"
+    "https://soundcloud.com/royaltyfreebackgroundmusic/sets/creative-commons-music-273\n\n"
     "Imágenes de IA y narración de IA."
 )
 
@@ -28,7 +28,11 @@ def actualizar_videos(client_secrets_file):
     scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
     # Obtener la instancia autenticada de la API de YouTube
-    youtube = get_authenticated_service(client_secrets_file, scopes)
+    try:
+        youtube = pickle.load(open("youtube.pickle", "rb"))
+    except (OSError, IOError) as e:
+        youtube = get_authenticated_service(client_secrets_file, scopes)
+        pickle.dump(youtube, open("youtube.pickle", "wb"))
 
     # Obtener la lista de videos del canal (incluyendo privados)
     playlist_id = "REDACTED_PLAYLIST_ID"  # ID de la lista de reproducción de subidas del canal
@@ -38,25 +42,38 @@ def actualizar_videos(client_secrets_file):
 
     while True:
         videos_response = youtube.playlistItems().list(
-            part="snippet",
+            part="snippet,status",
             playlistId=playlist_id,
             maxResults=50,  # Máximo permitido por solicitud
             pageToken=next_page_token
         ).execute()
 
-        total_results += len(videos_response.get("items", []))
-
         # Actualizar títulos y descripciones de los videos
         for video_item in videos_response.get("items", []):
+            if video_item["status"]["privacyStatus"] in ["public"]:
+                continue
+
             video_id = video_item["snippet"]["resourceId"]["videoId"]
             video_title = video_item["snippet"]["title"]
             video_description = video_item["snippet"]["description"]
 
+            if "portrait" not in video_title:
+                continue
+
+            total_results += 1
+
             # Realizar cambios en el título
-            new_title = video_title.replace("#horrorstories", "#terror #miedo")
-            # Realizar cambios en la descripción
-            new_description = video_description.replace("#horrorstories", "#horrorstories #terror")
-            if not new_description:
+            new_title = video_title.replace(" portrait", "")
+
+            # Realizar cambios en la descripción al añadir la descripción del archivo correspondiente
+            file_name = f"historias_terminadas/{new_title}.txt"
+            if os.path.exists(file_name):
+                with open(file_name, "r") as file:
+                    new_description = file.read()
+            else:
+                new_description = ""
+            new_description = new_description + "\n\n" + video_description
+            if not video_description:
                 # Si no hay descripción, usar la descripción predeterminada
                 new_description = DEFAULT_DESCRIPTION
             current_snippet = video_item["snippet"]
@@ -86,6 +103,6 @@ def actualizar_videos(client_secrets_file):
 if __name__ == "__main__":
     
     # Reemplazar 'RUTA_A_TU_JSON_DE_CREDENCIALES' con la ruta al archivo JSON de credenciales de OAuth2
-    client_secrets_file = 'client_secret_oauth.json'
+    client_secrets_file = '../client_secret_oauth.json'
 
     actualizar_videos(client_secrets_file)

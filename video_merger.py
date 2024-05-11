@@ -95,10 +95,10 @@ def add_title(video_clip, title_text, voice=default_voice):
 
     total_duration = padded_narration_audio.duration
 
-    title_clip = (TextClip(title_text, fontsize=40, color='white', bg_color='black', size=(video_clip.size[0], video_clip.size[1]))
+    title_clip = (TextClip(title_text, fontsize=15, color='white', bg_color='black', size=(video_clip.size[0], video_clip.size[1]))
                   .set_position(('center', 'top'))
                   .set_duration(total_duration)
-                  .set_audio(padded_narration_audio))  # Set the audio of the title clip to the padded narration
+                  .set_audio(padded_narration_audio))
 
     return concatenate_videoclips([title_clip, video_clip])
 

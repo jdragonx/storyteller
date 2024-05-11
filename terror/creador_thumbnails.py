@@ -1,0 +1,1 @@
+../creador_thumbnails.py
