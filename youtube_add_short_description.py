@@ -76,12 +76,21 @@ def actualizar_videos(client_secrets_file):
             if not video_description:
                 # Si no hay descripción, usar la descripción predeterminada
                 new_description = DEFAULT_DESCRIPTION
-            current_snippet = video_item["snippet"]
+
+            # Fetch the full snippet object for the video
+            video_response = youtube.videos().list(
+                part="snippet",
+                id=video_id
+            ).execute()
+
+            video = video_response.get("items", [])[0]
+            current_snippet = video["snippet"]
 
             # Actualizar título y descripción en el snippet actual
             current_snippet["title"] = new_title
             current_snippet["description"] = new_description
             current_snippet["categoryId"] = "24"
+            current_snippet["tags"] = []
 
             # Actualizar título y descripción
             request = youtube.videos().update(
