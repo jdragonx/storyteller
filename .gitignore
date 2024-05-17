@@ -12,3 +12,6 @@
 
 # Ignore any folder containing 'compilaciones' in its name
 **/*compilaciones*/
+
+# Ignore any folder containing 'imagenes' in its name
+**/*imagenes*/

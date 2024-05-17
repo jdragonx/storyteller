@@ -19,7 +19,7 @@ default_voice = voices[os.getcwd().split('/')[-1]]
 
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear las descripciones')
-@click.option('--dir', '-d', type=str, default='historias_para_video', help='Ruta del directorio de las historias para crear las descripciones')
+@click.option('--dir', '-d', type=str, default='historias', help='Ruta del directorio de las historias para crear las descripciones')
 def main(file, dir):
     os.makedirs('.tmp/descripciones', exist_ok=True)
     if file:
@@ -35,6 +35,8 @@ def main(file, dir):
             print(f"Creando descripciones para {file}")
             try:
                 create_description(os.path.join(dir, file))
+                # Luego movemos el archivo a la carpeta de historias para video
+                os.rename(os.path.join(dir, file), os.path.join('historias_para_video', file))
             except Exception as e:
                 print(f"Error creando descripciones para {file}: {e}. Skipping...")
                 traceback.print_exc()

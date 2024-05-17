@@ -229,14 +229,20 @@ def create_story(short: bool, do_trends: bool):
     base_filename_ya_subidas = f'./historias_ya_subidas/{titulo} #terror #miedo.txt'
 
     # Check if the file already exists in any of the directories
-    if (
-            os.path.isfile(base_filename)
-            or os.path.isfile(base_filename_video)
-            or os.path.isfile(base_filename_terminadas)
-            or os.path.isfile(base_filename_ya_subidas)
+    suffix = ""
+    while (
+            os.path.isfile(f'{base_filename}{suffix}')
+            or os.path.isfile(f'{base_filename_video}{suffix}')
+            or os.path.isfile(f'{base_filename_terminadas}{suffix}')
+            or os.path.isfile(f'{base_filename_ya_subidas}{suffix}')
         ):
-        # If it does, append a 'II' to the title
-        filename = f'./historias/{titulo} II #terror #miedo.txt'
+        # If it does, append a 'II' to the title then check again
+        suffix += " II"
+        filename = f'./historias/{titulo} {suffix} #terror #miedo.txt'
+        base_filename_video = f'./historias_para_video/{titulo} {suffix} #terror #miedo.txt'
+        base_filename_terminadas = f'./historias_terminadas/{titulo} {suffix} #terror #miedo.txt'
+        base_filename_ya_subidas = f'./historias_ya_subidas/{titulo} {suffix} #terror #miedo.txt'
+        base_filename = f'./historias/{titulo} {suffix} #terror #miedo.txt'
     else:
         # If it doesn't, use the base file name
         filename = base_filename

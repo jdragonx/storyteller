@@ -49,6 +49,10 @@ def split_text(text, draw, font, max_width):
     line1 = text[:split_index]
     line2 = text[split_index:]
 
+    # If the text can't be split further, return the text as it is
+    if line1 == text or line2 == text:
+        return text
+
     return split_text(line1, draw, font, max_width) + '\n' + split_text(line2, draw, font, max_width)
 
 def crop_image(image):
