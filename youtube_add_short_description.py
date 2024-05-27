@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2 import service_account
@@ -27,15 +28,24 @@ def get_authenticated_service(client_secrets_file, scopes):
 def actualizar_videos(client_secrets_file):
     scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
+    # Obtener la lista de videos del canal (incluyendo privados)
+    playlist_id = "REDACTED_PLAYLIST_ID"  # ID de la lista de reproducción de subidas del canal
+
     # Obtener la instancia autenticada de la API de YouTube
     try:
         youtube = pickle.load(open("youtube.pickle", "rb"))
-    except (OSError, IOError) as e:
+        # Probamos si el token funciona
+        videos_response = youtube.playlistItems().list(
+            part="snippet,status",
+            playlistId=playlist_id,
+            maxResults=1,
+        ).execute()
+    except (OSError, IOError, Exception) as e:
+        print(f"Error con el token de autenticación: {e}")
+        traceback.print_exc()
+
         youtube = get_authenticated_service(client_secrets_file, scopes)
         pickle.dump(youtube, open("youtube.pickle", "wb"))
-
-    # Obtener la lista de videos del canal (incluyendo privados)
-    playlist_id = "REDACTED_PLAYLIST_ID"  # ID de la lista de reproducción de subidas del canal
 
     next_page_token = None
     total_results = 0
@@ -44,7 +54,7 @@ def actualizar_videos(client_secrets_file):
         videos_response = youtube.playlistItems().list(
             part="snippet,status",
             playlistId=playlist_id,
-            maxResults=50,  # Máximo permitido por solicitud
+            maxResults=50,
             pageToken=next_page_token
         ).execute()
 
@@ -90,7 +100,6 @@ def actualizar_videos(client_secrets_file):
             current_snippet["title"] = new_title
             current_snippet["description"] = new_description
             current_snippet["categoryId"] = "24"
-            current_snippet["tags"] = []
 
             # Actualizar título y descripción
             request = youtube.videos().update(

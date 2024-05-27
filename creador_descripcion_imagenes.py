@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pickle
+import re
 from openai import OpenAI
 import json
 import click
@@ -67,6 +68,7 @@ def create_description(file: str):
     story_sections = [section_list.join('. ') for section_list in merged_oraciones[::100]]
     
     titulo = file.split('/')[-1].split('.')[0].split('#')[0].strip()
+    titulo = re.sub(r'[:",;\'`´’‘“”«»(){}\[\]¡!¿?\\/áéíóúÁÉÍÓÚñÑàèìòùäëïöüçãõâêîôû]', '', titulo)
     description_dir = f".tmp/descripciones/{titulo}"
 
     print("Creando descripciones...")
