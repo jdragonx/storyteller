@@ -32,7 +32,8 @@ def main(dir, output_file):
     # Obtener la lista de archivos de video en el directorio
     video_files = [file for file in os.listdir(dir) if file.endswith(".mp4")]
 
-    print("Compilando los siguientes videos:\n" + '\n'.join([video_file.split('#')[0].strip() for video_file in video_files]))
+    videos_concatenados = '\n'.join([video_file.split('#')[0].strip() for video_file in video_files])
+    print("Compilando los siguientes videos:\n" + videos_concatenados)
     
     # Cargar cada video, recortar si el ratio no es el correcto, y agregar título
     video_clips = [VideoFileClip(os.path.join(dir, file)) for file in video_files]
@@ -47,6 +48,11 @@ def main(dir, output_file):
 
     # Escribir el video final a un archivo
     final_video.write_videofile(output_file, codec='libx264', fps=24)
+
+    # Escribir como descripcion el nombre de los videos concatenados
+    descripcion_filename = f'./descripciones_historias/{output_file.split("/")[-1].replace(".mp4", ".txt")}'
+    with open(descripcion_filename, 'w') as f:
+        f.write(videos_concatenados)
 
 def create_narration(texto, audio_path, voice: str):
     combined_audio = None

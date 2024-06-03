@@ -8,7 +8,9 @@ import click
 import os
 import numpy as np
 import datetime
-import difflib
+import tiktoken
+
+encoder = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
 client = OpenAI()
 
@@ -39,6 +41,7 @@ def main(num_stories, short, do_trends, long):
     for i in range(num_stories):
         print(f"Creando historia {i+1} de {num_stories}")
         create_story(short, do_trends, long)
+        print(f"*" * 50)
 
 def create_story(short: bool, do_trends: bool, long: bool):
     # Historias largas definimos l final siempre en nuestro final personalizado, ya que al extender la historia, el final puede cambiar.
@@ -182,18 +185,26 @@ def create_story(short: bool, do_trends: bool, long: bool):
       {'role': 'system', 'content': f'Eres un chabot que crea un outline para una historia de terror{details_instructions}.{longitud}{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_generales} Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions}'},
     ]
     
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
-            messages=messages,
-            response_format={"type": "json_object"},
-            seed=datetime.datetime.now().timestamp().__int__()
-        )
-        parsed_response = json.loads(response.choices[0].message.content)
-        titulo = parsed_response['titulo']
-        outline = parsed_response['outline']
-    except Exception as e:
-        print(f"Error creating chat completion: {e}")
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                seed=datetime.datetime.now().timestamp().__int__()
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            titulo = parsed_response['titulo']
+            outline = parsed_response['outline']
+            break
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            traceback.print_exc()
+            retry += 1
+
+    if not titulo or not outline:
+        print("No se pudo crear el outline")
         return
 
     # Creación de la historia a partir del outline
@@ -202,39 +213,49 @@ def create_story(short: bool, do_trends: bool, long: bool):
     messages = [
       {'role': 'system', 'content': f'Eres un chabot que crea una historia de terror a partir de un outline y un título.{longitud} El título de la historia es "{titulo}", y el outline es el siguiente: "{outline}".{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final} La historia siempre debe tener un final.{instrucciones_de_historia_final}{instrucciones_generales} Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions_historia}'},
     ]
+
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                # model="gpt-4-0125-preview",
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            historia = parsed_response['historia']
+            break
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            traceback.print_exc()
+            retry += 1
     
-    try:
-        response = client.chat.completions.create(
-            # model="gpt-4-0125-preview",
-            model="gpt-3.5-turbo-0125",
-            messages=messages,
-            response_format={"type": "json_object"},
-            max_tokens=4000,
-            temperature=0,
-            seed=7
-        )
-        parsed_response = json.loads(response.choices[0].message.content)
-        historia = parsed_response['historia']
-    except Exception as e:
-        print(f"Error creating chat completion: {e}")
+    if not historia:
+        print("No se pudo crear la historia")
         return
     
     # Either increase the length of the story if it's too short, or reduce it if it's too long, depending on the 'short' parameter
     # If 'long' is set, create a really long story
     current_attempt = 0
-    if long:
-        historia = create_really_long(historia)
-    elif not short:
+    if not short:
         while historia and (len(re.findall(r'\b\w+\b', historia)) < 500) and current_attempt < 10:
             historia = increase_length(historia)
             current_attempt += 1
+        if long:
+            historia = create_really_long(historia)
+            descripcion = crear_descripcion_historia(historia)
     else:
         while historia and (len(re.findall(r'\b\w+\b', historia)) > 110) and current_attempt < 10:
             historia = reduce_length(historia)
             current_attempt += 1
+        descripcion = crear_descripcion_historia(historia)
     # Remove the dot on abreviations like Mr., Sr., Ms., Mrs., etc. and convert '...' to '.'
     historia = re.sub(r'\b(Mr|Sr|Ms|Mrs|Dr|St|Jr)\.', r'\1', historia)
-    historia = re.sub(r'\.\.\.', r'.', historia)    
+    historia = re.sub(r'\.\.\.', r'.', historia)
 
     # Define the base file name
     base_filename = f'./historias/{titulo} #terror #miedo.txt'
@@ -245,13 +266,13 @@ def create_story(short: bool, do_trends: bool, long: bool):
     # Check if the file already exists in any of the directories
     suffix = ""
     while (
-            os.path.isfile(f'{base_filename}{suffix}')
-            or os.path.isfile(f'{base_filename_video}{suffix}')
-            or os.path.isfile(f'{base_filename_terminadas}{suffix}')
-            or os.path.isfile(f'{base_filename_ya_subidas}{suffix}')
+            os.path.isfile(f'{base_filename} {suffix}')
+            or os.path.isfile(f'{base_filename_video} {suffix}')
+            or os.path.isfile(f'{base_filename_terminadas} {suffix}')
+            or os.path.isfile(f'{base_filename_ya_subidas} {suffix}')
         ):
         # If it does, append a 'II' to the title then check again
-        suffix += " II"
+        suffix += "II"
         filename = f'./historias/{titulo} {suffix} #terror #miedo.txt'
         base_filename_video = f'./historias_para_video/{titulo} {suffix} #terror #miedo.txt'
         base_filename_terminadas = f'./historias_terminadas/{titulo} {suffix} #terror #miedo.txt'
@@ -264,6 +285,12 @@ def create_story(short: bool, do_trends: bool, long: bool):
     # Write the story to the file
     with open(filename, 'w') as f:
         f.write(historia)
+    
+    if short or long:
+        # Write the description to the file, but only if the story is short or long
+        descripcion_filename = f'./descripciones_historias/{base_filename.split("/")[-1]}'
+        with open(descripcion_filename, 'w') as f:
+            f.write(descripcion)
 
 def increase_length(historia: str):
     # Extension de la historia
@@ -272,23 +299,27 @@ def increase_length(historia: str):
     messages = [
       {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña e instantáneamente la transformas en un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en historias grandes, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre expandes cada oración de la historia, sin dejar ninguna oración sin haber sido expandida, para poder construir así una atmósfera completamente envolvente.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales} Usas varios párrafos para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
-    
-    try:
-        response = client.chat.completions.create(
-            # model="gpt-4-0125-preview",
-            model="gpt-3.5-turbo-0125",
-            messages=messages,
-            response_format={"type": "json_object"},
-            max_tokens=4000,
-            temperature=0,
-            seed=7
-        )
-        parsed_response = json.loads(response.choices[0].message.content)
-        historia_expandida = parsed_response['historia_expandida']
-        return historia_expandida
-    except Exception as e:
-        print(f"Error creating chat completion: {e}")
-        return historia
+
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                # model="gpt-4-0125-preview",
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            historia_expandida = parsed_response['historia_expandida']
+            return historia_expandida
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            traceback.print_exc()
+            retry += 1
+    return historia
 
 def reduce_length(historia: str):
     # Reducción de la historia
@@ -298,37 +329,45 @@ def reduce_length(historia: str):
       {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia grande e instantáneamente la transformas en una historia pequeña que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias grandes sean reducidas en historias un poco más pequeñas, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales} Usas un único párrafo para dar mayor facilidad a la lectura de tus historias. El formato de tu respuesta es el siguiente: {format_instructions_historia_corta}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
 
-    try:
-        response = client.chat.completions.create(
-            # model="gpt-4-0125-preview",
-            model="gpt-3.5-turbo-0125",
-            messages=messages,
-            response_format={"type": "json_object"},
-            max_tokens=4000,
-            temperature=0,
-            seed=7
-        )
-        parsed_response = json.loads(response.choices[0].message.content)
-        historia_reducida = parsed_response['historia_reducida']
-        return historia_reducida
-    except Exception as e:
-        print(f"Error creating chat completion: {e}")
-        return historia
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                # model="gpt-4-0125-preview",
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            historia_reducida = parsed_response['historia_reducida']
+            return historia_reducida
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            traceback.print_exc()
+            retry += 1
+    return historia
 
-def create_really_long(historia: str, extension = 30):
+def create_really_long(historia: str):
     # Creación de una historia realmente larga
     print("Creando historia realmente larga...")
+    oraciones_historia = historia.split('.')
+    extension = len(oraciones_historia)
     libro: str = ""
-    context_length_exceeded = False
+    tema_seccion = '...'
+    secciones_anteriores = []
 
-    for i in range(extension + 2):
+    for i in range(extension):
+        tema_seccion += " " + oraciones_historia[i] + "."
+        seccion_anterior = '. '.join(secciones_anteriores[-2:]) if secciones_anteriores else ''
         print(f"Creando sección {i+1} de {extension}")
-        libro_a_enviar = '.'.join(libro.split('.')[-20:]) + "." if context_length_exceeded else libro
         instruccion_final = ' Esta es la última sección así que debes darle el final en esta sección a lo que has ido construyendo' if (i>=(extension-1)) else ''
 
         format_instructions_historia_larga = '{"seccion": Esta es la sección del libro en la que te encuentras ahora, "contenido_seccion": "aquí escribes el contenido de la sección del libro, recuerda que debes escribir el libro en '+str(extension)+' secciones. El libro será al menos '+str(extension)+' veces más extenso que la historia original, para ello cada sección debe tener entre 1000 y 3000 palabras, con varios párrafos."}'
         messages = [
-        {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña y la transformas en un libro, el que es un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en libros, pero conversen su esencia, no cambias nunca el tipo de historia, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo del libro como si fuera real.{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{instrucciones_de_historia_final}{instrucciones_generales} Para poder escribir la historia la haremos por partes, poco a poco en {extension} secciones. Para ello tienes acceso al libro completo de lo que has escrito hasta ahora, la historia pequeña original, y sabrás en cuál sección te encuentras en este momento. SIEMPRE EVITAS LA REPETICIÓN DE IDEAS Y LA REPETICIÓN DE PALABRAS Y FRASES, MANTENIENDO COHERENCIA Y FLUIDEZ EN TODA LA HISTORIA.{instruccion_final} El formato de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\n\n\nLa historia pequeña es la siguiente:\n\n\n\n"{historia}".\n\n\n\nEl libro hasta ahora es el siguiente:\n\n\n\n"{libro_a_enviar}". Estás en la sección {i+1}.'},
+        {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña y la transformas en un libro, el que es un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en libros, pero conversen su esencia, no cambias nunca el tipo de historia, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo del libro como si fuera real. Siempre expandes cada oración de la historia, sin dejar ninguna oración sin haber sido expandida, para poder construir así una atmósfera completamente envolvente.{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{instrucciones_de_historia_final}{instrucciones_generales} Para poder escribir la historia la haremos por partes, poco a poco en {extension} secciones. Para ello tienes acceso a la sección anterior del libro que has escrito hasta ahora, la historia pequeña original, y sabrás en cuál sección te encuentras en este momento. SIEMPRE EVITAS LA REPETICIÓN DE IDEAS Y LA REPETICIÓN DE PALABRAS Y FRASES, MANTENIENDO COHERENCIA Y FLUIDEZ EN TODA LA HISTORIA.{instruccion_final} El formato de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\n\n\nLa historia pequeña es la siguiente:\n\n\n\n"{historia}".\n\n\n\nLa sección anterior del libro es la siguiente:\n\n\n\n"{seccion_anterior}". Estás en la sección {i+1}, la cual se trata sobre """{oraciones_historia[i]}""". Recuerda que escribirás el libro poco a poco en {extension} secciones. Debes ir avanzando en la historia poco a poco, con paciencia, sin adelantarte a los acontecimientos, y siempre manteniendo la coherencia y la fluidez en toda la historia. Expande el tema de esta sección en su totalidad y con extremo detalle.'},
         ]
         
         retry = 0
@@ -339,8 +378,7 @@ def create_really_long(historia: str, extension = 30):
                     messages=messages,
                     response_format={"type": "json_object"},
                     max_tokens=4000,
-                    temperature=0.5,
-                    presence_penalty=0.5,
+                    temperature=0,
                     seed=datetime.datetime.now().timestamp().__int__()
                 )
                 parsed_response = json.loads(response.choices[0].message.content)
@@ -349,47 +387,138 @@ def create_really_long(historia: str, extension = 30):
                 # Revisamos si la seccion tiene repeticiones en su interior o con la seccion anterior
                 repetitivo = verificar_textos_repetitivos(libro, contenido_seccion)
                 if repetitivo:
-                    print("Sección repetitiva, eliminando sección.")
-                    contenido_seccion = ''
+                    print("Sección repetitiva, corrigiendo sección.")
+                    contenido_seccion = corregir_texto_repetitivo(secciones_anteriores[-1], contenido_seccion, tema_seccion)
+                    repetitivo = verificar_textos_repetitivos(libro, contenido_seccion)
+                    if repetitivo:
+                        print("Sección sigue siendo repetitiva, ignorando sección.")
+                        break
+                secciones_anteriores.append(contenido_seccion)
                 libro += f" {contenido_seccion}" if i > 0 else contenido_seccion
+                tema_seccion = '...'
                 break
             except Exception as e:
-                if hasattr(e, 'code') and e.code == 'context_length_exceeded':
-                    context_length_exceeded = True
                 print(f"Error creating chat completion: {e}")
                 traceback.print_exc()
                 retry += 1
-
+    seccion_final = '. '.join(secciones_anteriores[-4:]) if secciones_anteriores else ''
+    final = crear_final(seccion_final)
+    final_repetitivo = verificar_textos_repetitivos(libro, final)
+    if final_repetitivo:
+        print("Final repetitivo, ignorando final.")
+        final = ''
+    libro += ' ' + final
     return re.sub(' +', ' ', libro)
 
-def verificar_textos_repetitivos(texto1, texto2):
+def crear_final(historia: str):
+    print("Añadiendo final...")
+    format_instructions_final = '{"tiene_final": "aquí pones un análisis sobre si la historia tiene final o no tal y como se encuentra escrita", "tiene_final_bool": "aquí pones true o false, dependiendo de tu análisis anterior", "final_de_la_historia": "aquí pones el final de la historia, debe tener entre 1000 y 3000 palabras, si es que la historia no tiene final. Si la historia ya tiene final, pones NA"}'
+    messages = [
+      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia incompleta y le añades un final, que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias conversen su esencia, no cambias el tipo de historia.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales}. El formato de tu respuesta es el siguiente: {format_instructions_final}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
+    ]
+
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                # model="gpt-4-0125-preview",
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            if parsed_response['tiene_final_bool']:
+                return ''
+            else:
+                return parsed_response['final_de_la_historia']
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            retry += 1
+
+    return ""
+
+
+def verificar_textos_repetitivos(libro, texto):
     # Dividir los textos en oraciones
-    oraciones1 = texto1.split('.')
-    oraciones2 = texto2.split('.')
+    oraciones_libro = libro.split('.')
+    oraciones_texto = texto.split('.')
 
     # Verificar si hay oraciones duplicadas dentro de cada texto
-    if len(oraciones1) != len(set(oraciones1)) or len(oraciones2) != len(set(oraciones2)):
+    if len(oraciones_texto) != len(set(oraciones_texto)):
         return True
     
     # Verificar si alguno de los textos está vacío, en cuyo caso no se considera repetitivo
-    if not texto1 or not texto2:
+    if not libro or not texto:
         return False
 
-    # Determinar cuál texto es más largo
-    if len(texto1) > len(texto2):
-        texto1 = texto1[-len(texto2):]
-    else:
-        texto2 = texto2[-len(texto1):]
-
     # Dividir los nuevos textos en oraciones y ponerlos en un set
-    oraciones1 = set(texto1.split('.'))
-    oraciones2 = set(texto2.split('.'))
+    oraciones_libro = set(oraciones_libro)
+    oraciones_texto = set(oraciones_texto)
 
     # Comparar las oraciones y contar cuántas son iguales
-    match = oraciones1.intersection(oraciones2)
+    match = oraciones_libro.intersection(oraciones_texto)
 
-    # Devolver True si hay al menos una oración idéntica, False en caso contrario
-    return len(match) > 0
+    # Devolver True si hay al menos dos oraciones idénticas, False en caso contrario
+    return len(match) > 1
+
+def corregir_texto_repetitivo(texto_anterior, texto, guia_correccion):
+    # Corrigiendo seccion repetitiva
+    print("Corrigiendo seccion repetitiva...")
+    format_texto_repetitivo = '{"texto_corregido": "Aquí pones el texto corregido, recuerda que debe ser diferente al texto original, sin repeticiones de ideas, frases u oraciones, manteniendo coherencia y fluidez en toda la historia, según la guía de corrección. Recuerda solo poner aquí el texto corregido, sin la guía de corrección. La guía sólo te sirve para corregir el texto, no para ponerla en la respuesta final. Tampoco pones aquí el texto anterior, ya que este texto corregido debe ser una continuación del texto anterior, tal y como el texto original con errores y redundancias pretendía ser, pero no pudo debido a las mencionadas redundancias."}'
+    messages = [
+      {'role': 'system', 'content': f'Eres un escritor famoso, tomas un texto que se encuentra escrito con redundancia y lo corriges. Para lograr eso siempre te enfocas en que las historias conversen su esencia, no cambias el tipo de historia. Utilizas la guía de corrección para saber el tema general que debería de tener el texto y así poder corregirlo eliminando redundancias, oraciones y frases repetidas, y dando mejor fluidez a los escritos. Recuerda mantener la esencia del texto, ya que debe continuar la historia del texto anterior de forma natural y según el tema de la guía de corrección.{estilo} Siempre narras tus historias en {persona_narracion}.{instrucciones_de_historia_final}{instrucciones_generales}. El formato de tu respuesta es el siguiente: {format_texto_repetitivo}\n\n\n\nEl texto que debes corregir es el siguiente:\n\n\n\n"""{texto}""".\n\n\n\nLa guía de corrección es la siguiente:\n\n\n\n"""{guia_correccion}""".\n\n\n\nEl texto anterior, con el cual el texto corregido debe ser una continuación es el siguiente:\n\n\n\n"""{texto_anterior}"""'},
+    ]
+
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            return parsed_response['texto_corregido']
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            retry += 1
+
+    return texto
+
+def crear_descripcion_historia(historia: str):
+    # Truncar la historia a 11000 tokens para evitar errores
+    historia = encoder.decode(encoder.encode(historia)[:11000])
+    # Creación de la descripción de la historia
+    print("Creando descripción de la historia...")
+    format_instructions_descripcion = '{"descripcion": "aquí pones la descripción de la historia, debe ser un resumen de la historia, que contenga la esencia de la historia, sin revelar el final, y que sea lo suficientemente intrigante para que el lector quiera leer la historia completa. Puedes usar emojis para la descripción. Recuerda que la descripción debe ser en español, sin errores de codificación. La descripción debe ser corta, de máximo 100 palabras, con un único párrafo."}'
+    messages = [
+      {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia y creas una descripción que la acompañe. Para lograr eso siempre te enfocas en que las descripciones conversen su esencia, no cambias el tipo de historia. Creas descripciones que sean un resumen de la historia, que contengan la esencia de la historia, sin revelar el final, y que sean lo suficientemente intrigantes para que el lector quiera leer la historia completa.{estilo} Siempre narras tus historias en {persona_narracion}.{instrucciones_generales}. El formato de tu respuesta es el siguiente: {format_instructions_descripcion}\n\n\n\nLa historia es la siguiente:\n\n\n\n"{historia}"'},
+    ]
+
+    retry = 0
+    while (retry < 5):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo-0125",
+                messages=messages,
+                response_format={"type": "json_object"},
+                max_tokens=4000,
+                temperature=0,
+                seed=7
+            )
+            parsed_response = json.loads(response.choices[0].message.content)
+            return parsed_response['descripcion']
+        except Exception as e:
+            print(f"Error creating chat completion: {e}")
+            retry += 1
+
+    return ""
 
 if __name__ == '__main__':
     main()

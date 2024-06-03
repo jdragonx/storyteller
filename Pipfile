@@ -13,6 +13,7 @@ google-api-python-client = "*"
 google-auth-oauthlib = "*"
 pillow = "*"
 bingimagecreator = "*"
+tiktoken = "*"
 
 [dev-packages]
 

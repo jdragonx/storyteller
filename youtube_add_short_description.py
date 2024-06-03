@@ -67,16 +67,13 @@ def actualizar_videos(client_secrets_file):
             video_title = video_item["snippet"]["title"]
             video_description = video_item["snippet"]["description"]
 
-            if "portrait" not in video_title:
-                continue
-
             total_results += 1
 
             # Realizar cambios en el título
             new_title = video_title.replace(" portrait", "")
 
             # Realizar cambios en la descripción al añadir la descripción del archivo correspondiente
-            file_name = f"historias_terminadas/{new_title}.txt"
+            file_name = f"descripciones/{new_title}.txt"
             if os.path.exists(file_name):
                 with open(file_name, "r") as file:
                     new_description = file.read()

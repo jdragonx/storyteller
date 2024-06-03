@@ -6,12 +6,13 @@ import traceback
 
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la imagen para crear el thumbnail')
-@click.option('--dir', '-d', type=str, default='imagenes_thumbnail', help='Ruta del directorio de las imágenes para crear los thumbnails')
-def main(file, dir):
-    os.makedirs('.tmp/thumbnails', exist_ok=True)
+@click.option('--dir', '-d', type=str, default='imagenes_para_thumbnail', help='Ruta del directorio de las imágenes para crear los thumbnails')
+@click.option('--output', '-o', type=str, default='thumbnails', help='Ruta del directorio donde se guardarán los thumbnails')
+def main(file, dir, output):
+    os.makedirs(output, exist_ok=True)
     if file:
         try:
-            create_thumbnail(file)
+            create_thumbnail(file, output)
         except Exception as e:
             print(f"Error creando thumbnail para {file}: {e}. Exiting...")
             return
@@ -20,7 +21,7 @@ def main(file, dir):
             print("*" * 50)
             print(f"Creando thumbnail para {file}")
             try:
-                create_thumbnail(os.path.join(dir, file))
+                create_thumbnail(os.path.join(dir, file), output)
             except Exception as e:
                 print(f"Error creando thumbnail para {file}: {e}. Skipping...")
                 traceback.print_exc()
@@ -79,7 +80,7 @@ def crop_image(image):
     # Crop the image to 16:9
     return image.crop((left, top, right, bottom))
 
-def create_thumbnail(file: str):
+def create_thumbnail(file: str, output: str):
     # Open the image file
     image = Image.open(file)
 
@@ -109,7 +110,7 @@ def create_thumbnail(file: str):
     draw.multiline_text(text_position, text, font=font, fill='red')
 
     # Save the image with maximum quality
-    output_file_path = f'.tmp/thumbnails/{os.path.basename(file)}'
+    output_file_path = f'{output}/{os.path.basename(file)}'
     quality = 100
     image.save(output_file_path, quality=quality)
 
