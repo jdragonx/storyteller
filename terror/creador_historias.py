@@ -195,7 +195,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
                 seed=datetime.datetime.now().timestamp().__int__()
             )
             parsed_response = json.loads(response.choices[0].message.content)
-            titulo = parsed_response['titulo']
+            titulo: str = parsed_response['titulo']
             outline = parsed_response['outline']
             break
         except Exception as e:
@@ -209,7 +209,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
 
     # Creación de la historia a partir del outline
     print("Creando historia...")
-    format_instructions_historia = '{"titulo": "aquí pondrás el título de la historia", "historia": "Aquí pones la historia."}'
+    format_instructions_historia = '{"historia": "Aquí pones la historia.", "titulo": "aquí pondrás el título de la historia, dado que ya has terminado de escribir la historia debes escoger un mejor título para ella. El ítulo debe ser único y completamente original. Recuerda que debe ser un título muy intrigante, el cual llame la atención enseguida con solo verlo y obligue a las personas abrir la historia para saber de qué se trata. La historia será publicada online por lo que el título es extremadamente importante, piensa que será narrada en un video de youtube, por eso el título debe ser el que daría los mejores resultados para que los usuarios de youtube que lo vean den click en el video. Además debe ser un título corto, máximo de 7 palabras. El título siempre debe ser en idioma español, sin errores de codificación."}'
     messages = [
       {'role': 'system', 'content': f'Eres un chabot que crea una historia de terror a partir de un outline y un título.{longitud} El título de la historia es "{titulo}", y el outline es el siguiente: "{outline}".{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final} La historia siempre debe tener un final.{instrucciones_de_historia_final}{instrucciones_generales} Siempre envías el formato correcto, el cual sigue estas directrices: {format_instructions_historia}'},
     ]
@@ -228,6 +228,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
             )
             parsed_response = json.loads(response.choices[0].message.content)
             historia = parsed_response['historia']
+            titulo = parsed_response['titulo']
             break
         except Exception as e:
             print(f"Error creating chat completion: {e}")
@@ -252,35 +253,48 @@ def create_story(short: bool, do_trends: bool, long: bool):
         while historia and (len(re.findall(r'\b\w+\b', historia)) > 110) and current_attempt < 10:
             historia = reduce_length(historia)
             current_attempt += 1
-        descripcion = crear_descripcion_historia(historia)
+        descripcion = historia
     # Remove the dot on abreviations like Mr., Sr., Ms., Mrs., etc. and convert '...' to '.'
     historia = re.sub(r'\b(Mr|Sr|Ms|Mrs|Dr|St|Jr)\.', r'\1', historia)
     historia = re.sub(r'\.\.\.', r'.', historia)
 
+    # Remove ':' from the title, and replace it with ','
+    titulo = titulo.replace(':', ',')
+
     # Define the base file name
-    base_filename = f'./historias/{titulo} #terror #miedo.txt'
-    base_filename_video = f'./historias_para_video/{titulo} #terror #miedo.txt'
-    base_filename_terminadas = f'./historias_terminadas/{titulo} #terror #miedo.txt'
-    base_filename_ya_subidas = f'./historias_ya_subidas/{titulo} #terror #miedo.txt'
+    base_filename = f'./historias/'
+    base_filename_video = f'./historias_para_video/'
+    base_filename_terminadas = f'./historias_terminadas/'
+    base_filename_ya_subidas = f'./historias_ya_subidas/'
+
+    # Define the hashtag part
+    hashtag_part = ' #terror #miedo.txt'
 
     # Check if the file already exists in any of the directories
     suffix = ""
     while (
-            os.path.isfile(f'{base_filename} {suffix}')
-            or os.path.isfile(f'{base_filename_video} {suffix}')
-            or os.path.isfile(f'{base_filename_terminadas} {suffix}')
-            or os.path.isfile(f'{base_filename_ya_subidas} {suffix}')
+            os.path.isfile(f'{base_filename}{titulo}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_video}{titulo}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_terminadas}{titulo}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_ya_subidas}{titulo}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename}{titulo.capitalize()}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_video}{titulo.capitalize()}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_terminadas}{titulo.capitalize()}{suffix}{hashtag_part}')
+            or os.path.isfile(f'{base_filename_ya_subidas}{titulo.capitalize()}{suffix}{hashtag_part}')
         ):
-        # If it does, append a 'II' to the title then check again
-        suffix += "II"
-        filename = f'./historias/{titulo} {suffix} #terror #miedo.txt'
-        base_filename_video = f'./historias_para_video/{titulo} {suffix} #terror #miedo.txt'
-        base_filename_terminadas = f'./historias_terminadas/{titulo} {suffix} #terror #miedo.txt'
-        base_filename_ya_subidas = f'./historias_ya_subidas/{titulo} {suffix} #terror #miedo.txt'
-        base_filename = f'./historias/{titulo} {suffix} #terror #miedo.txt'
+        # If it does first let's see if we can remove "La", "Los" or "El" from the start of the title
+        if titulo.lower().startswith("la "):
+            titulo = titulo[3:]
+        elif titulo.lower().startswith("el "):
+            titulo = titulo[3:]
+        elif titulo.lower().startswith("los "):
+            titulo = titulo[4:]
+        else:
+            # If it doesn't work, append a 'II' to the title then check again
+            suffix += " II"
     else:
-        # If it doesn't, use the base file name
-        filename = base_filename
+        # We found a filename that doesn't exist, let's create the file
+        filename = f'{base_filename}{titulo}{suffix}{hashtag_part}'
 
     # Write the story to the file
     with open(filename, 'w') as f:
@@ -288,7 +302,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
     
     if short or long:
         # Write the description to the file, but only if the story is short or long
-        descripcion_filename = f'./descripciones_historias/{base_filename.split("/")[-1]}'
+        descripcion_filename = f'./descripciones_historias/{filename.split("/")[-1]}'
         with open(descripcion_filename, 'w') as f:
             f.write(descripcion)
 
@@ -354,6 +368,10 @@ def create_really_long(historia: str):
     # Creación de una historia realmente larga
     print("Creando historia realmente larga...")
     oraciones_historia = historia.split('.')
+    # We merge the sentences in groups of n
+    n = 2
+    oraciones_historia = ['.'.join(oraciones_historia[i:i+n]) for i in range(0, len(oraciones_historia), n)]
+    
     extension = len(oraciones_historia)
     libro: str = ""
     tema_seccion = '...'
@@ -393,6 +411,7 @@ def create_really_long(historia: str):
                     if repetitivo:
                         print("Sección sigue siendo repetitiva, ignorando sección.")
                         break
+                contenido_seccion = '.'.join(contenido_seccion.split('.')[:-3]) + '.'
                 secciones_anteriores.append(contenido_seccion)
                 libro += f" {contenido_seccion}" if i > 0 else contenido_seccion
                 tema_seccion = '...'
@@ -405,14 +424,18 @@ def create_really_long(historia: str):
     final = crear_final(seccion_final)
     final_repetitivo = verificar_textos_repetitivos(libro, final)
     if final_repetitivo:
-        print("Final repetitivo, ignorando final.")
-        final = ''
+        print("Final repetitivo, corrigiendo final.")
+        final = corregir_texto_repetitivo(seccion_final, final, tema_seccion)
+        final_repetitivo = verificar_textos_repetitivos(libro, final)
+        if final_repetitivo:
+            print("Final sigue siendo repetitivo, ignorando final.")
+            final = ''
     libro += ' ' + final
     return re.sub(' +', ' ', libro)
 
 def crear_final(historia: str):
     print("Añadiendo final...")
-    format_instructions_final = '{"tiene_final": "aquí pones un análisis sobre si la historia tiene final o no tal y como se encuentra escrita", "tiene_final_bool": "aquí pones true o false, dependiendo de tu análisis anterior", "final_de_la_historia": "aquí pones el final de la historia, debe tener entre 1000 y 3000 palabras, si es que la historia no tiene final. Si la historia ya tiene final, pones NA"}'
+    format_instructions_final = '"final_de_la_historia": "aquí pones el final de la historia, debe tener entre 1000 y 3000 palabras, con varios párrafos."'
     messages = [
       {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia incompleta y le añades un final, que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias conversen su esencia, no cambias el tipo de historia.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales}. El formato de tu respuesta es el siguiente: {format_instructions_final}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
@@ -430,10 +453,7 @@ def crear_final(historia: str):
                 seed=7
             )
             parsed_response = json.loads(response.choices[0].message.content)
-            if parsed_response['tiene_final_bool']:
-                return ''
-            else:
-                return parsed_response['final_de_la_historia']
+            return parsed_response['final_de_la_historia']
         except Exception as e:
             print(f"Error creating chat completion: {e}")
             retry += 1

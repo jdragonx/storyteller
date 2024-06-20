@@ -29,7 +29,7 @@ default_voice = voices[os.getcwd().split('/')[-1]]
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear el video')
 @click.option('--dir', '-d', type=str, default='historias_para_video', help='Ruta del directorio de las historias para crear los videos')
 @click.option('--skip-images', '-i', is_flag=True, help='No hace llamadas a la API de OpenAI para crear imágenes, todo lo requerido debe estar en la carpeta .tmp')
-@click.option('--voice', '-v', type=str, default=default_voice, help='Voz a utilizar para la narración, puede ser alloy, echo, fable, onyx, nova, o shimmer')
+@click.option('--voice', '-v', type=str, default=default_voice, help='Voz a utilizar para la narración, puede ser alloy, echo, fable, onyx, nova, o shimmer, por defecto es onyx para terror y echo para cuentos')
 @click.option('--create-portrait', '-p', is_flag=True, help='Crea también versiones en formato vertical de los videos')
 def main(file, dir, skip_images, voice, create_portrait):
     os.makedirs('.tmp/.discard', exist_ok=True)

@@ -67,13 +67,16 @@ def actualizar_videos(client_secrets_file):
             video_title = video_item["snippet"]["title"]
             video_description = video_item["snippet"]["description"]
 
+            if (video_description and not video_description.startswith("Relato")):
+                continue
+
             total_results += 1
 
             # Realizar cambios en el título
             new_title = video_title.replace(" portrait", "")
 
             # Realizar cambios en la descripción al añadir la descripción del archivo correspondiente
-            file_name = f"descripciones/{new_title}.txt"
+            file_name = f"descripciones_historias/{new_title}.txt"
             if os.path.exists(file_name):
                 with open(file_name, "r") as file:
                     new_description = file.read()
@@ -107,6 +110,10 @@ def actualizar_videos(client_secrets_file):
                 }
             )
             request.execute()
+
+            # Borramos el archivo de descripción
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
         next_page_token = videos_response.get("nextPageToken")
 

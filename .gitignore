@@ -15,3 +15,18 @@
 
 # Ignore any folder containing 'imagenes' in its name
 **/*imagenes*/
+
+# Ignore any folder containing 'thumbnails' in its name
+**/*thumbnails*/
+
+# Ignore any files ending with "pickle"
+**/*pickle
+
+# Ignore any files ending with "pkl"
+**/*pkl
+
+# Ignore any files ending with "mp3"
+**/*mp3
+
+# Ignore any files ending with "mp4"
+**/*mp4

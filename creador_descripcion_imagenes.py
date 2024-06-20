@@ -2,7 +2,6 @@
 import pickle
 import re
 from openai import OpenAI
-import json
 import click
 import os
 import traceback
