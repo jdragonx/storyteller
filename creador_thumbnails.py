@@ -96,6 +96,9 @@ def create_thumbnail(file: str, output: str):
     # Get the filename without extension
     text = os.path.splitext(os.path.basename(file))[0]
 
+    # Add a space at the end of the text to ensure it's split properly
+    text = text.strip() + " "
+
     # Split the text into multiple lines if it exceeds the set width
     text = split_text(text, draw, font, image.width / 2)
 

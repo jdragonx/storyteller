@@ -70,6 +70,8 @@ def actualizar_videos(client_secrets_file):
             if (video_description and not video_description.startswith("Relato")):
                 continue
 
+            print(f"Actualizando video: {video_title}")
+
             total_results += 1
 
             # Realizar cambios en el título
