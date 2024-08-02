@@ -18,7 +18,7 @@ from math import sin, pi
 from bing_create.main import ImageGenerator
 
 max_retries = 100
-n_imgs = 2
+n_imgs_per_sentence = 2
 client = OpenAI()
 voices = {
     'terror': 'onyx',
@@ -149,7 +149,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             image_path = os.path.join(image_dir, f'{i}.jpg')
 
             # generate_and_save_image_openai(prompt, image_path, n_imgs)
-            generate_and_save_image_bing(prompt, image_path, n_imgs)
+            generate_and_save_image_bing(prompt, image_path, n_imgs_per_sentence)
             break
         except Exception as e:
             print(f"Error creating image: {e}. Retrying...")
@@ -163,7 +163,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
         images = os.listdir(image_dir)
         images = [os.path.join(image_dir, image) for image in images]
         images = sorted(images, key=lambda x: int(x.split('/')[-1].split('.')[0]))
-        for (i, image) in enumerate(images[-n_imgs:]):
+        for (i, image) in enumerate(images[-n_imgs_per_sentence:]):
             os.system(f'cp {image} {image.replace(".jpg", f".{i}.jpg")}')
         return None
     
