@@ -70,10 +70,6 @@ def actualizar_videos(client_secrets_file):
             if (video_description and not video_description.startswith("Relato")):
                 continue
 
-            print(f"Actualizando video: {video_title}")
-
-            total_results += 1
-
             # Realizar cambios en el título
             new_title = video_title.replace(" portrait", "")
 
@@ -83,12 +79,14 @@ def actualizar_videos(client_secrets_file):
                 with open(file_name, "r") as file:
                     new_description = file.read()
             else:
-                new_description = ""
-            new_description = new_description + "\n\n" + video_description
-            if not video_description:
-                # Si no hay descripción, usar la descripción predeterminada
-                new_description = DEFAULT_DESCRIPTION
+                # Si no hay descripción, nos saltamos el video
+                continue
 
+            new_description = new_description + "\n\n" + video_description
+
+            print(f"Actualizando video: {video_title}")
+
+            total_results += 1
             # Fetch the full snippet object for the video
             video_response = youtube.videos().list(
                 part="snippet",

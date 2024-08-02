@@ -15,8 +15,10 @@ from pydub import AudioSegment
 import itertools
 import traceback
 from math import sin, pi
+from bing_create.main import ImageGenerator
 
 max_retries = 100
+n_imgs = 2
 client = OpenAI()
 voices = {
     'terror': 'onyx',
@@ -24,6 +26,16 @@ voices = {
 }
 
 default_voice = voices[os.getcwd().split('/')[-1]]
+
+auth_cookie_u='1oukY5lgjFRNko_c0EnmF3IzhDiwL42g5hziPMUXksuXKDnTexmb-sFNfg9mD2G7JVsT6QrE6-6aWgRa4R9vzVe1q_7Gw3cnAKnJDkevUCE3xcwTI-jXxEdWALwYOtRQVWmoeOWtCk2NXhD-RbHpYaHWUlQxiXUOHCj_bBJVpj-GLXJVES1852mivsX6JDphEPvWUcSzDdq0Fc4Mj3vx0OfNMAdPkDyPq5Vose9ebJDk'
+auth_cookie_srchhpgusr='SRCHLANG=es&IG=D4ECF28D33EB4114B2B8F05B876A9CC0&PV=6.5.0&BRW=N&BRH=M&CW=1247&CH=943&SCW=1232&SCH=943&DPR=1.0&UTC=-300&DM=0&PRVCW=1802&PRVCH=943&CIBV=1.1792.0&EXLTT=8&HV=1722281497&cdxtone=Creative&cdxtoneopts=&cdxtoneopts=h3imaginative,clgalileo,gencontentv3&cdxtoneopts=h3imaginative,clgalileo,gencontentv3&cdxtoneopts=h3imaginative,clgalileo&cdxtoneopts=,clgalileo,clgalileonsr,dlbmtc,dlbpc4575,dlbrngnp,dlbtc,dlbuc07,dlbuf03,preclsngnp,h3imagrv2wcp&cdxtoneopts=galileo,glfluxv15sv2,galileorv2wcp&cdxtoneopts=,clgalileo,clgalileonsr,dlbmtc,dlbpc4575,dlbrngnp,dlbtc,dlbuc07,dlbuf03,preclsngnp,h3imagrv2wcp&WTS=63856934653'
+
+# Create an instance of the ImageGenerator class
+bing_image_generator = ImageGenerator(
+    auth_cookie_u,
+    auth_cookie_srchhpgusr,
+    False,
+)
 
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear el video')
@@ -60,7 +72,7 @@ def merge_oraciones(oraciones: list[str]):
     merged_oraciones = []
     for i in range(len(oraciones)):
         words = oraciones[i].split()
-        if len(words) <= 10:
+        if len(words) <= 15:
             if i == len(oraciones) - 1:
                 merged_oraciones[-1] += ' ' + oraciones[i]
             else:
@@ -109,7 +121,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
     while retry_count < max_retries:
         try:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo-1106",
+                model="gpt-4o-mini",
                 messages=messages,
                 response_format={"type": "json_object"},
             )
@@ -120,7 +132,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             while moderation.results[0].flagged:
                 print("Prompt flagged by moderation. Modifying prompt...")
                 response = client.chat.completions.create(
-                    model="gpt-3.5-turbo-1106",
+                    model="gpt-4o-mini",
                     messages=[
                         {'role': 'system', 'content': 'You are an assistant that receives an image description that was flagged by moderation and modifies it so that is not flagged anymore and is considered safe, you should avoid any language that may include the following: "sexual", "hate", "harassment", "self-harm", "sexual/minors", "hate/threatening", "violence/graphic", "self-harm/intent", "self-harm/instructions", "harassment/threatening" or "violence". However, keep all the details of the image while avoiding the mentioned language, use synonims, contextual descriptions, modify terms, but keep the details given. You return the response in json format, like this: {"description": "Here you put the image description"}. You always use english on the description.'},
                         {'role': 'user', 'content': prompt},
@@ -133,20 +145,11 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
 
             prompt_addition = "Realistic looking image with great and perfect detail. "
             prompt = prompt_addition + prompt[:4000 - len(prompt_addition)]
-            image = client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                n=1,
-                size="1024x1024",
-                response_format='b64_json',
-            )
-            b64_string = image.data[0].b64_json
-            image_bytes = base64.b64decode(b64_string)
             os.makedirs(image_dir, exist_ok=True)
             image_path = os.path.join(image_dir, f'{i}.jpg')
 
-            with open(image_path, 'wb') as f:
-                f.write(image_bytes)
+            # generate_and_save_image_openai(prompt, image_path, n_imgs)
+            generate_and_save_image_bing(prompt, image_path, n_imgs)
             break
         except Exception as e:
             print(f"Error creating image: {e}. Retrying...")
@@ -156,8 +159,45 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             time.sleep(backoff_time)  # pause execution for backoff_time seconds
 
     if retry_count == max_retries:
-        print("Max retries reached trying to create image. Exiting...")
+        print("Max retries reached trying to create image. Duplicating last image(s)...")
+        images = os.listdir(image_dir)
+        images = [os.path.join(image_dir, image) for image in images]
+        images = sorted(images, key=lambda x: int(x.split('/')[-1].split('.')[0]))
+        for (i, image) in enumerate(images[-n_imgs:]):
+            os.system(f'cp {image} {image.replace(".jpg", f".{i}.jpg")}')
         return None
+    
+def generate_and_save_image_openai(prompt: str, image_path: str, num_images: int):
+    image = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt,
+        n=num_images,
+        size="1024x1024",
+        response_format='b64_json',
+    )
+
+    for (i, image_data) in enumerate(image.data):
+        b64_string = image_data.b64_json
+        image_bytes = base64.b64decode(b64_string)
+
+        with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
+            f.write(image_bytes)
+            f.close()
+
+def generate_and_save_image_bing(prompt: str, image_path: str, num_images: int):
+    images = bing_image_generator.generate(
+        prompt=prompt,
+        num_images=num_images
+    )
+
+    for (i, image_link) in enumerate(images):
+        response = bing_image_generator.client.get(image_link)
+        if response.status_code != 200:
+            raise Exception("Exception happened while saving image! (Response was not ok)")
+        
+        with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
+            f.write(response.content)
+            f.close()
 
 def create_narration(oraciones: list[str], audio_path: str, voice: str):
     combined_audio = None    
@@ -177,6 +217,7 @@ def create_narration(oraciones: list[str], audio_path: str, voice: str):
                     model="tts-1",
                     voice=voice,
                     input=oracion,
+                    speed=0.9
                 )
                 temporal_path = f".tmp/.discard/temp_audio.mp3"
                 response.stream_to_file(temporal_path)
@@ -270,18 +311,6 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
     images = [os.path.join(image_dir, image) for image in images]
     images = sorted(images, key=lambda x: int(x.split('/')[-1].split('.')[0]))
 
-    # Check if there are missing images
-    while len(images) < len(start_times):
-        # Find the missing image number
-        image_numbers = set(int(image.split('/')[-1].split('.')[0]) for image in images)
-        missing_image_number = next(i for i in range(len(start_times)) if i not in image_numbers)
-
-        # Duplicate the previous image
-        previous_image = images[missing_image_number - 1]
-        images.insert(missing_image_number, previous_image)
-    
-    images = images[:len(start_times)]  # remove extra images
-
     # Load the audio clip
     audio_clip = AudioFileClip(audio_con_musica_dir)
 
@@ -289,8 +318,33 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
     durations_per_image = [(start_times[i+1] - start_times[i])/1000 for i in range(len(start_times) - 1)]
     durations_per_image.append(audio_clip.duration - start_times[-1]/1000)  # duration of last image
 
+    new_durations_per_image = []
+    current_image_number = 0
+    number_of_alternatives = 0
+    for image in images:
+        image_number = int(image.split('/')[-1].split('.')[0])
+        if current_image_number == image_number:
+            number_of_alternatives += 1
+        else:
+            if (current_image_number >= len(durations_per_image)):
+                break
+            dur = durations_per_image[current_image_number] / number_of_alternatives
+            for i in range(number_of_alternatives):
+                new_durations_per_image.append(dur)
+            current_image_number = image_number
+            number_of_alternatives = 1
+
+    if (current_image_number < len(durations_per_image)):
+        dur = durations_per_image[current_image_number] / number_of_alternatives
+        for i in range(number_of_alternatives):
+            new_durations_per_image.append(dur)
+
+    print(f"Images: {len(images)}, Durations: {len(new_durations_per_image)}")
+
+    images = images[:len(new_durations_per_image)]  # remove extra images
+
     # Create a video clip from the images
-    video = create_video_from_images(images, durations_per_image)
+    video = create_video_from_images(images, new_durations_per_image)
 
     # Set the audio of the video clip
     video = video.set_audio(audio_clip)
@@ -300,7 +354,7 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
 
     if create_portrait:
         # Create a video clip from the images
-        video_portrait = create_video_from_images(images, durations_per_image, ratio='portrait')
+        video_portrait = create_video_from_images(images, new_durations_per_image, ratio='portrait')
         
         # Set the audio of the video clip
         video_portrait = video_portrait.set_audio(audio_clip)

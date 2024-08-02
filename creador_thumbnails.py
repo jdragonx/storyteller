@@ -110,7 +110,7 @@ def create_thumbnail(file: str, output: str):
             draw.multiline_text((text_position[0] + x_offset, text_position[1] + y_offset), text, font=font, fill='black')
 
     # Draw the text on the image with a dark red color
-    draw.multiline_text(text_position, text, font=font, fill='red')
+    draw.multiline_text(text_position, text, font=font, fill='white')
 
     # Save the image with maximum quality
     output_file_path = f'{output}/{os.path.basename(file.split(".")[0] + ".jpg")}'

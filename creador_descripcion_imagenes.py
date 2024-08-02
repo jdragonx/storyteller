@@ -95,7 +95,7 @@ def get_description(historia: str, oracion: str):
     while retry_count < max_retries:
         try:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo-1106",
+                model="gpt-4o-mini",
                 messages=messages,
                 max_tokens=100,
             )

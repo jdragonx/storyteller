@@ -1,12 +1,15 @@
 #!/bin/bash
 echo "Starting video merge in groups process..."
 
-# Loop and pick 10 videos at random from the folder videos and move them to the folder videos_ya_subidos until there are no more videos
+# Receive the number of videos as a parameter, with a default of 7
+num_videos=${1:-7}
+
+# Loop and pick N videos at random from the folder videos and move them to the folder videos_ya_subidos until there are no more videos
 while [ $(find videos -type f -name '*.mp4' | wc -l) -gt 0 ]; do
     echo "************************************************************"
-    echo "Finding and moving 10 random videos..."
-    # Find all video files in the 'videos' directory, shuffle the list, pick the top 10, and move them to videos_ya_subidos
-    find videos -type f -name '*.mp4' | shuf -n 10 | while read file; do
+    echo "Finding and moving $num_videos random videos..."
+    # Find all video files in the 'videos' directory, shuffle the list, pick the top N, and move them to videos_ya_subidos
+    find videos -type f -name '*.mp4' | shuf -n $num_videos | while read file; do
         mv "$file" "videos_ya_subidos/${file#videos/}" && echo "Moved $file to videos_ya_subidos/" || { echo "Failed to move file $file"; exit 1; }
     done
 

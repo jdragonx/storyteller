@@ -175,7 +175,7 @@ def create_story(short: bool):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
+            model="gpt-4o-mini",
             messages=messages,
             response_format={"type": "json_object"},
             seed=datetime.datetime.now().timestamp().__int__()
@@ -200,7 +200,7 @@ def create_story(short: bool):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
+            model="gpt-4o-mini",
             messages=messages,
             response_format={"type": "json_object"},
             max_tokens=4000,
@@ -247,7 +247,7 @@ def increase_length(historia: str):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
+            model="gpt-4o-mini",
             messages=messages,
             response_format={"type": "json_object"},
             max_tokens=4000,
