@@ -27,14 +27,11 @@ voices = {
 
 default_voice = voices[os.getcwd().split('/')[-1]]
 
-auth_cookie_u='1oukY5lgjFRNko_c0EnmF3IzhDiwL42g5hziPMUXksuXKDnTexmb-sFNfg9mD2G7JVsT6QrE6-6aWgRa4R9vzVe1q_7Gw3cnAKnJDkevUCE3xcwTI-jXxEdWALwYOtRQVWmoeOWtCk2NXhD-RbHpYaHWUlQxiXUOHCj_bBJVpj-GLXJVES1852mivsX6JDphEPvWUcSzDdq0Fc4Mj3vx0OfNMAdPkDyPq5Vose9ebJDk'
-auth_cookie_srchhpgusr='SRCHLANG=es&IG=D4ECF28D33EB4114B2B8F05B876A9CC0&PV=6.5.0&BRW=N&BRH=M&CW=1247&CH=943&SCW=1232&SCH=943&DPR=1.0&UTC=-300&DM=0&PRVCW=1802&PRVCH=943&CIBV=1.1792.0&EXLTT=8&HV=1722281497&cdxtone=Creative&cdxtoneopts=&cdxtoneopts=h3imaginative,clgalileo,gencontentv3&cdxtoneopts=h3imaginative,clgalileo,gencontentv3&cdxtoneopts=h3imaginative,clgalileo&cdxtoneopts=,clgalileo,clgalileonsr,dlbmtc,dlbpc4575,dlbrngnp,dlbtc,dlbuc07,dlbuf03,preclsngnp,h3imagrv2wcp&cdxtoneopts=galileo,glfluxv15sv2,galileorv2wcp&cdxtoneopts=,clgalileo,clgalileonsr,dlbmtc,dlbpc4575,dlbrngnp,dlbtc,dlbuc07,dlbuf03,preclsngnp,h3imagrv2wcp&WTS=63856934653'
-
 # Create an instance of the ImageGenerator class
 bing_image_generator = ImageGenerator(
-    auth_cookie_u,
-    auth_cookie_srchhpgusr,
-    False,
+    auth_cookie_u=os.environ.get('AUTH_COOKIE_U'),
+    auth_cookie_srchhpgusr=os.environ.get('AUTH_COOKIE_SRCHHPGUSR'),
+    logging_enabled=False,
 )
 
 @click.command()
