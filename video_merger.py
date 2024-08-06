@@ -37,7 +37,7 @@ def main(dir, output_file):
     
     # Cargar cada video, recortar si el ratio no es el correcto, y agregar título
     video_clips = [VideoFileClip(os.path.join(dir, file)) for file in video_files]
-    video_clips = [crop_video(clip) for clip in video_clips]
+    # video_clips = [crop_video(clip) for clip in video_clips]
     video_clips_with_titles = [add_title(clip, file.split('#')[0].strip()) for file, clip in zip(video_files, video_clips)]
 
     # Concatenar clips de video
@@ -65,6 +65,7 @@ def create_narration(texto, audio_path, voice: str):
                 model="tts-1",
                 voice=voice,
                 input=texto,
+                speed=0.9,
             )
             temporal_path = f".tmp/.discard/temp_audio.mp3"
             response.stream_to_file(temporal_path)
@@ -91,20 +92,22 @@ def create_narration(texto, audio_path, voice: str):
 # Function to add title to a video
 def add_title(video_clip, title_text, voice=default_voice):
     # Create narration for title
-    narration_path = ".tmp/.discard/narration.mp3"
-    create_narration(title_text, narration_path, voice)
-    narration_audio = AudioFileClip(narration_path)
+    # narration_path = ".tmp/.discard/narration.mp3"
+    # create_narration(title_text, narration_path, voice)
+    # narration_audio = AudioFileClip(narration_path)
 
     # Add padding of 3 seconds on each side of the narration
     silence = AudioClip(lambda t: 0, duration=2)  # 2 seconds of silence
-    padded_narration_audio = concatenate_audioclips([silence, narration_audio, silence])  # Concatenate the silence and the narration
+    # padded_narration_audio = concatenate_audioclips([silence, narration_audio, silence])  # Concatenate the silence and the narration
 
-    total_duration = padded_narration_audio.duration
+    # total_duration = padded_narration_audio.duration
+    total_duration = silence.duration
 
-    title_clip = (TextClip(title_text, fontsize=15, color='white', bg_color='black', size=(video_clip.size[0], video_clip.size[1]))
+    title_clip = (TextClip(title_text, fontsize=30, color='white', bg_color='black', size=(video_clip.size[0], video_clip.size[1]))
                   .set_position(('center', 'top'))
                   .set_duration(total_duration)
-                  .set_audio(padded_narration_audio))
+                  # .set_audio(padded_narration_audio))
+                  .set_audio(silence))
 
     return concatenate_videoclips([title_clip, video_clip])
 

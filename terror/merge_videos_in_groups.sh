@@ -2,7 +2,7 @@
 echo "Starting video merge in groups process..."
 
 # Receive the number of videos as a parameter, with a default of 7
-num_videos=${1:-7}
+num_videos=${1:-6}
 
 # Loop and pick N videos at random from the folder videos and move them to the folder videos_ya_subidos until there are no more videos
 while [ $(find videos -type f -name '*.mp4' | wc -l) -gt 0 ]; do

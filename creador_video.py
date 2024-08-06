@@ -27,12 +27,12 @@ voices = {
 
 default_voice = voices[os.getcwd().split('/')[-1]]
 
-# Create an instance of the ImageGenerator class
-bing_image_generator = ImageGenerator(
-    auth_cookie_u=os.environ.get('AUTH_COOKIE_U'),
-    auth_cookie_srchhpgusr=os.environ.get('AUTH_COOKIE_SRCHHPGUSR'),
-    logging_enabled=False,
-)
+cookies_bing: list = []
+
+# Read the json file cuentas_bing.json to load the list of cookies
+with open('cuentas_bing.json', 'r') as f:
+    cuentas_bing = json.load(f)
+    cookies_bing = cuentas_bing['cookies']
 
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear el video')
@@ -92,6 +92,7 @@ def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool
     if not skip_images:
         print("Creando imágenes...")
         for i, oracion in enumerate(merged_oraciones):
+            print(f"Ciclo de creación {i+1}/{len(merged_oraciones)}...")
             get_image(historia, oracion, image_dir, i)
     
     print("Creando narracion...")
@@ -182,6 +183,18 @@ def generate_and_save_image_openai(prompt: str, image_path: str, num_images: int
             f.close()
 
 def generate_and_save_image_bing(prompt: str, image_path: str, num_images: int):
+    # Let's pick at random one of the cookies
+    cookie = random.choice(cookies_bing)
+
+    print(f"Usando cuenta: {cookie['cuenta']}")
+
+    # Create an instance of the ImageGenerator class
+    bing_image_generator = ImageGenerator(
+        auth_cookie_u=cookie['auth_cookie_u'],
+        auth_cookie_srchhpgusr=cookie['auth_cookie_srchhpgusr'],
+        logging_enabled=False,
+    )
+
     images = bing_image_generator.generate(
         prompt=prompt,
         num_images=num_images

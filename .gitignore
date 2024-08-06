@@ -30,3 +30,6 @@
 
 # Ignore any files ending with "mp4"
 **/*mp4
+
+# Ignore any files cuentas_bing.json
+**/cuentas_bing.json
