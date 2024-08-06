@@ -37,17 +37,18 @@ with open('cuentas_bing.json', 'r') as f:
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear el video')
 @click.option('--dir', '-d', type=str, default='historias_para_video', help='Ruta del directorio de las historias para crear los videos')
+@click.option('--output-dir', '-o', type=str, default='videos', help='Ruta del directorio donde se guardarán los videos')
 @click.option('--skip-images', '-i', is_flag=True, help='No hace llamadas a la API de OpenAI para crear imágenes, todo lo requerido debe estar en la carpeta .tmp')
 @click.option('--voice', '-v', type=str, default=default_voice, help='Voz a utilizar para la narración, puede ser alloy, echo, fable, onyx, nova, o shimmer, por defecto es onyx para terror y echo para cuentos')
 @click.option('--create-portrait', '-p', is_flag=True, help='Crea también versiones en formato vertical de los videos')
-def main(file, dir, skip_images, voice, create_portrait):
+def main(file, dir, output_dir, skip_images, voice, create_portrait):
     os.makedirs('.tmp/.discard', exist_ok=True)
     os.makedirs('.tmp/audios', exist_ok=True)
     os.makedirs('.tmp/audios_con_musica', exist_ok=True)
     os.makedirs('.tmp/images', exist_ok=True)
     if file:
         try:
-            create_video(file, skip_images, voice, create_portrait)
+            create_video(file, skip_images, voice, create_portrait, output_dir)
         except Exception as e:
             print(f"Error creando video para {file}: {e}. Exiting...")
             traceback.print_exc()
@@ -57,7 +58,7 @@ def main(file, dir, skip_images, voice, create_portrait):
             print("*" * 50)
             print(f"Creando video para {file}")
             try:
-                create_video(os.path.join(dir, file), skip_images, voice, create_portrait)
+                create_video(os.path.join(dir, file), skip_images, voice, create_portrait, output_dir)
             except Exception as e:
                 print(f"Error creando video para {file}: {e}. Skipping...")
                 traceback.print_exc()
@@ -79,7 +80,7 @@ def merge_oraciones(oraciones: list[str]):
     return merged_oraciones if len(merged_oraciones) == len(oraciones) else merge_oraciones(merged_oraciones)
 
 
-def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool):
+def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool, output_dir: str):
     with open(file, 'r') as f:
         historia = f.read()
     oraciones = [oracion.strip() for oracion in historia.split('.') if oracion.strip().replace('\n', '') != '']
@@ -102,7 +103,8 @@ def create_video(file: str, skip_images: bool, voice: str, create_portrait: bool
     create_audio(audio_path, titulo)
 
     print("Creando video...")
-    video_path = f"videos/{titulo}.mp4"
+    os.makedirs(output_dir, exist_ok=True)
+    video_path = f"{output_dir}/{titulo}.mp4"
     audio_con_musica_path = f".tmp/audios_con_musica/{titulo}.mp3"
     create_video_from_images_and_audio(image_dir, audio_con_musica_path, video_path, start_times, create_portrait)
 
