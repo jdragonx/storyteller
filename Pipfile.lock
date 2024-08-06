@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1a6dd7640a4a97326245ac4fe31fedb8dcaed5235828759c716a7b251cd9ae6b"
+            "sha256": "b1d23f32906d75f1863d85cade4047db359ee5bf29f2d1aad796de7f0f2d8477"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -41,19 +41,8 @@
             "version": "==4.4.0"
         },
         "bing-create": {
-            "hashes": [
-                "sha256:ab9e07786dd420732a49fd18eb3eca6225fff663035db16011b71617cea3f707"
-            ],
-            "index": "pypi",
-            "version": "==0.0.5"
-        },
-        "bingimagecreator": {
-            "hashes": [
-                "sha256:9822e07ec32f79a88d4a0db59e85dfed46477cfe706d534c2bd813f1c92120e0",
-                "sha256:e15798b7c0394145b334d0b3bef4aad187d5e7e0c3f7b6d949e413fe11b5ea47"
-            ],
-            "index": "pypi",
-            "version": "==0.5.0"
+            "git": "https://github.com/jdragonx/bing-create",
+            "ref": "685fc279d3573a4921e6f99eb698e8bde20830fa"
         },
         "cachetools": {
             "hashes": [
