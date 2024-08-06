@@ -1,17 +1,17 @@
 # Ignore all .tmp folders
 **/.tmp/
 
-# Ignore all folders containing the word 'video' in their name
-**/*video*/
+# Ignore the content of all folders containing the word 'video' in their name
+**/*video*/**
 
-# Ignore any folder containing 'historia' in its name
-**/*historia*/
+# Ignore the content of any folder containing 'compilaciones' in its name
+**/*compilaciones*/**
 
-# Ignore any folder containing 'imagenes' in its name
-**/*imagenes*/
+# Ignore the content of any folder containing 'imagenes' in its name
+**/*imagenes*/**
 
-# Ignore any folder containing 'thumbnails' in its name
-**/*thumbnails*/
+# Ignore the content of any folder containing 'thumbnails' in its name
+**/*thumbnails*/**
 
 # Ignore any files ending with "mp3"
 **/*mp3
