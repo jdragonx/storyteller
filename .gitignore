@@ -2,7 +2,7 @@
 **/.tmp/
 
 # Ignore the content of all folders containing the word 'video' in their name
-**/*video*/**
+**/*videos*/**
 
 # Ignore the content of any folder containing 'compilaciones' in its name
 **/*compilaciones*/**
