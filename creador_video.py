@@ -8,14 +8,12 @@ import time
 import math
 from moviepy.editor import ImageClip, AudioFileClip, VideoClip
 from moviepy.video.compositing.concatenate import concatenate_videoclips
-from moviepy.video.fx.colorx import colorx
 import os
 import random
 from pydub import AudioSegment
 import itertools
 import traceback
 from math import sin, pi
-from bing_create.main import ImageGenerator
 
 max_retries = 100
 n_imgs_per_sentence = 2
@@ -26,13 +24,6 @@ voices = {
 }
 
 default_voice = voices[os.getcwd().split('/')[-1]]
-
-cookies_bing: list = []
-
-# Read the json file cuentas_bing.json to load the list of cookies
-with open('cuentas_bing.json', 'r') as f:
-    cuentas_bing = json.load(f)
-    cookies_bing = cuentas_bing['cookies']
 
 @click.command()
 @click.option('--file', '-f', type=str, help='Ruta del archivo de la historia para crear el video')
@@ -148,8 +139,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             os.makedirs(image_dir, exist_ok=True)
             image_path = os.path.join(image_dir, f'{i}.jpg')
 
-            # generate_and_save_image_openai(prompt, image_path, n_imgs)
-            generate_and_save_image_bing(prompt, image_path, n_imgs_per_sentence)
+            generate_and_save_image_openai(prompt, image_path, n_imgs_per_sentence)
             break
         except Exception as e:
             print(f"Error creating image: {e}. Retrying...")
@@ -182,33 +172,6 @@ def generate_and_save_image_openai(prompt: str, image_path: str, num_images: int
 
         with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
             f.write(image_bytes)
-            f.close()
-
-def generate_and_save_image_bing(prompt: str, image_path: str, num_images: int):
-    # Let's pick at random one of the cookies
-    cookie = random.choice(cookies_bing)
-
-    print(f"Usando cuenta: {cookie['cuenta']}")
-
-    # Create an instance of the ImageGenerator class
-    bing_image_generator = ImageGenerator(
-        auth_cookie_u=cookie['auth_cookie_u'],
-        auth_cookie_srchhpgusr=cookie['auth_cookie_srchhpgusr'],
-        logging_enabled=False,
-    )
-
-    images = bing_image_generator.generate(
-        prompt=prompt,
-        num_images=num_images
-    )
-
-    for (i, image_link) in enumerate(images):
-        response = bing_image_generator.client.get(image_link)
-        if response.status_code != 200:
-            raise Exception("Exception happened while saving image! (Response was not ok)")
-        
-        with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
-            f.write(response.content)
             f.close()
 
 def create_narration(oraciones: list[str], audio_path: str, voice: str):

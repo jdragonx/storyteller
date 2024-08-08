@@ -13,7 +13,9 @@ google-api-python-client = "~=2.139.0"
 google-auth-oauthlib = "~=1.2.1"
 pillow = "~=10.4.0"
 tiktoken = "~=0.7.0"
+requests-tor = "~=1.4"
 bing-create = {git = "https://github.com/jdragonx/bing-create"}
+pandas = "*"
 
 [dev-packages]
 
