@@ -1,20 +1,9 @@
 #!/usr/bin/env python3
-import re
 from openai import OpenAI
 import json
 import click
-import base64
-import time
-import math
-from moviepy.editor import ImageClip, AudioFileClip, VideoClip
-from moviepy.video.compositing.concatenate import concatenate_videoclips
-from moviepy.video.fx.colorx import colorx
 import os
 import random
-from pydub import AudioSegment
-import itertools
-import traceback
-from math import sin, pi
 from bing_create.main import ImageGenerator
 import pandas as pd
 

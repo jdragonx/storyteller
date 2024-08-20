@@ -17,6 +17,7 @@ from math import sin, pi
 
 max_retries = 100
 n_imgs_per_sentence = 2
+length_oracion = 15
 client = OpenAI()
 voices = {
     'terror': 'onyx',
@@ -61,7 +62,7 @@ def merge_oraciones(oraciones: list[str]):
     merged_oraciones = []
     for i in range(len(oraciones)):
         words = oraciones[i].split()
-        if len(words) <= 15:
+        if len(words) <= length_oracion:
             if i == len(oraciones) - 1:
                 merged_oraciones[-1] += ' ' + oraciones[i]
             else:
