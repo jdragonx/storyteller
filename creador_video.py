@@ -15,7 +15,7 @@ import itertools
 import traceback
 from math import sin, pi
 
-max_retries = 100
+max_retries = 17
 n_imgs_per_sentence = 2
 length_oracion = 15
 client = OpenAI()
@@ -149,7 +149,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             backoff_time = math.pow(2, retry_count)  # exponential backoff
             time.sleep(backoff_time)  # pause execution for backoff_time seconds
 
-    if retry_count == max_retries:
+    if retry_count >= max_retries:
         print("Max retries reached trying to create image. Duplicating last image(s)...")
         images = os.listdir(image_dir)
         images = [os.path.join(image_dir, image) for image in images]

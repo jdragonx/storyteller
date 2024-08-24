@@ -25,10 +25,11 @@ with open('cuentas_bing.json', 'r') as f:
     cookies_bing = cuentas_bing['cookies']
 
 @click.command()
-@click.option('--file', '-f', default='imagenes_bing.csv', type=str, help='Ruta del archivo csv con los links de las imágenes')
-def main(file):
+@click.option('--dir', '-d', default='links_bing', type=str, help='Ruta del directorio con los archivos csv con los links de las imágenes')
+def main(dir):
     os.makedirs('.tmp/images', exist_ok=True)
-    download_and_save_images_bing(file)
+    for file in os.listdir(dir):
+        download_and_save_images_bing(file)
 
 def download_and_save_images_bing(file: str):
 
