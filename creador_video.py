@@ -15,7 +15,7 @@ import itertools
 import traceback
 from math import sin, pi
 
-max_retries = 17
+max_retries = 15
 n_imgs_per_sentence = 2
 length_oracion = 15
 client = OpenAI()
@@ -146,7 +146,7 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
             print(f"Error creating image: {e}. Retrying...")
             traceback.print_exc()
             retry_count += 1
-            backoff_time = math.pow(2, retry_count)  # exponential backoff
+            backoff_time = math.pow(1.5, retry_count)  # exponential backoff
             time.sleep(backoff_time)  # pause execution for backoff_time seconds
 
     if retry_count >= max_retries:
@@ -215,10 +215,10 @@ def create_narration(oraciones: list[str], audio_path: str, voice: str):
                 print(f"Error creating narration: {e}. Retrying...")
                 traceback.print_exc()
                 retry_count += 1
-                backoff_time = math.pow(2, retry_count)  # exponential backoff
+                backoff_time = math.pow(1.5, retry_count)  # exponential backoff
                 time.sleep(backoff_time)  # pause execution for backoff_time seconds
 
-        if retry_count == max_retries:
+        if retry_count >= max_retries:
             print("Max retries reached. Exiting...")
             return
 

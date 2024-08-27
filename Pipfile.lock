@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d5dddf8be83c06125697e3705ee87622b3f2b812b9c5380a7902b0e9c5555bfa"
+            "sha256": "152e7664e415c5f7fb31906022c13ee869446b394d01b1b1af8f2d26afae1e0a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -50,6 +50,7 @@
         },
         "bing-create": {
             "git": "https://github.com/Waenara/bing-create",
+            "markers": "python_version >= '3.6'",
             "ref": "e559eba6f44ec91cc218f49239650aa5d8547604"
         },
         "brotli": {
@@ -258,6 +259,7 @@
                 "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.7'",
             "version": "==8.1.7"
         },
         "decorator": {
@@ -275,14 +277,6 @@
             "markers": "python_version >= '3.6'",
             "version": "==1.9.0"
         },
-        "exceptiongroup": {
-            "hashes": [
-                "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b",
-                "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"
-            ],
-            "markers": "python_version < '3.11'",
-            "version": "==1.2.2"
-        },
         "google-api-core": {
             "hashes": [
                 "sha256:f12a9b8309b5e21d92483bbd47ce2c445861ec7d269ef6784ecc0ea8c1fa6125",
@@ -297,6 +291,7 @@
                 "sha256:ed4bc3abe2c060a87412465b4e8254620bbbc548eefc5388e2c5ff912d36a68b"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.7'",
             "version": "==2.139.0"
         },
         "google-auth": {
@@ -320,6 +315,7 @@
                 "sha256:afd0cad092a2eaa53cd8e8298557d6de1034c6cb4a740500b5357b648af97263"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.6'",
             "version": "==1.2.1"
         },
         "googleapis-common-protos": {
@@ -446,6 +442,7 @@
                 "sha256:f26b258c385842546006213344c50655ff1555a9338e2e5e02a0756dc3e803dd"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.9'",
             "version": "==2.0.2"
         },
         "oauthlib": {
@@ -462,6 +459,7 @@
                 "sha256:c73c78878258b07f1b468b0602c6591f25a1478f49ecb90b9bd44b7cc80bce73"
             ],
             "index": "pypi",
+            "markers": "python_full_version >= '3.7.1'",
             "version": "==1.7.2"
         },
         "outcome": {
@@ -505,6 +503,7 @@
                 "sha256:eee3a87076c0756de40b05c5e9a6069c035ba43e8dd71c379e68cab2c20f16ad"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.9'",
             "version": "==2.2.2"
         },
         "pillow": {
@@ -591,6 +590,7 @@
                 "sha256:ff337c552345e95702c5fde3158acb0625111017d0e5f24bf3acdb9cc16b90d1"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==10.4.0"
         },
         "proglog": {
@@ -869,7 +869,9 @@
             "version": "==2024.7.24"
         },
         "requests": {
-            "extras": [],
+            "extras": [
+                "socks"
+            ],
             "hashes": [
                 "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760",
                 "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"
@@ -891,6 +893,7 @@
                 "sha256:f7dcea87fc40105294ef6ea7c3ff665bed161262dac562c169d33cd2e9ee18f3"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.6'",
             "version": "==1.4"
         },
         "rsa": {
@@ -907,6 +910,7 @@
                 "sha256:3a8d9f23dc636bd3840dd56f00c2739e32ec0c1e34a821dd553e15babef24477"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==4.23.1"
         },
         "setuptools": {
@@ -986,6 +990,7 @@
                 "sha256:fffdcb319b614cf14f04d02a52e26b1d1ae14a570f90e9b55461a72672f7b13d"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==0.7.0"
         },
         "tqdm": {
