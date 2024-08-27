@@ -1,29 +1,6 @@
-from moviepy.editor import VideoFileClip, TextClip, concatenate_videoclips, AudioFileClip, AudioClip, concatenate_audioclips
+from moviepy.editor import VideoFileClip, TextClip, concatenate_videoclips, AudioClip
 import os
 import click
-from pydub import AudioSegment
-from openai import OpenAI
-import time
-import math
-from moviepy.video.fx.crop import crop
-
-def crop_video(clip):
-    # Check if the video is square
-    if clip.size[0] == clip.size[1]:
-        # Crop the video to 16:9 format
-        new_width = clip.size[0]
-        new_height = int(new_width * 9 / 16)
-        clip = crop(clip, width=new_width, height=new_height, x_center=clip.size[0]/2, y_center=clip.size[1]/2)
-    return clip
-
-client = OpenAI()
-max_retries = 5
-voices = {
-    'terror': 'onyx',
-    'cuentos': 'echo',
-}
-
-default_voice = voices[os.getcwd().split('/')[-1]]
 
 @click.command()
 @click.option('--dir', '-d', default="videos_ya_subidos", type=str, help='Directorio donde están los archivos de video')
@@ -54,53 +31,9 @@ def main(dir, output_file):
     with open(descripcion_filename, 'w') as f:
         f.write(videos_concatenados)
 
-def create_narration(texto, audio_path, voice: str):
-    combined_audio = None
-    silence = AudioSegment.silent(duration=1000)  # half a second of silence
-
-    retry_count = 0
-    while retry_count < max_retries:
-        try:
-            response = client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=texto,
-                speed=0.9,
-            )
-            temporal_path = f".tmp/.discard/temp_audio.mp3"
-            response.stream_to_file(temporal_path)
-            audio = AudioSegment.from_mp3(temporal_path).apply_gain(10)
-
-            if combined_audio is None:
-                combined_audio = audio
-            else:
-                combined_audio += silence + audio
-
-            break
-        except Exception as e:
-            print(f"Error creating narration: {e}. Retrying...")
-            retry_count += 1
-            backoff_time = math.pow(2, retry_count)  # exponential backoff
-            time.sleep(backoff_time)  # pause execution for backoff_time seconds
-
-    if retry_count == max_retries:
-        print("Max retries reached. Exiting...")
-        return
-
-    combined_audio.export(audio_path, format="mp3")
-
 # Function to add title to a video
-def add_title(video_clip, title_text, voice=default_voice):
-    # Create narration for title
-    # narration_path = ".tmp/.discard/narration.mp3"
-    # create_narration(title_text, narration_path, voice)
-    # narration_audio = AudioFileClip(narration_path)
-
-    # Add padding of 3 seconds on each side of the narration
+def add_title(video_clip, title_text):
     silence = AudioClip(lambda t: 0, duration=2)  # 2 seconds of silence
-    # padded_narration_audio = concatenate_audioclips([silence, narration_audio, silence])  # Concatenate the silence and the narration
-
-    # total_duration = padded_narration_audio.duration
     total_duration = silence.duration
 
     title_clip = (TextClip(title_text, fontsize=30, color='white', bg_color='black', size=(video_clip.size[0], video_clip.size[1]))

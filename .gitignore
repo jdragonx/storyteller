@@ -18,3 +18,5 @@
 
 # Ignore any files ending with "mp4"
 **/*mp4
+
+**/*links*/**

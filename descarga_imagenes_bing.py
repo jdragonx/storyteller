@@ -29,7 +29,7 @@ with open('cuentas_bing.json', 'r') as f:
 def main(dir):
     os.makedirs('.tmp/images', exist_ok=True)
     for file in os.listdir(dir):
-        download_and_save_images_bing(file)
+        download_and_save_images_bing(os.path.join(dir,file))
 
 def download_and_save_images_bing(file: str):
 
@@ -62,7 +62,7 @@ def download_and_save_images_bing(file: str):
             with open(previous_image_path, "rb") as f:
                 image = f.read()
                 f.close()
-        
+
         with open(image_path, "wb") as f:
             f.write(image)
             f.close()
