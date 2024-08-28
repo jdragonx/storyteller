@@ -319,24 +319,18 @@ def create_video_from_images_and_audio(image_dir: str, audio_con_musica_dir: str
 
     images = images[:len(new_durations_per_image)]  # remove extra images
 
-    # Create a video clip from the images
-    video = create_video_from_images(images, new_durations_per_image)
+    if create_portrait:
+        # Create a video clip from the images
+        video = create_video_from_images(images, new_durations_per_image, ratio='portrait')
+    else:
+        # Create a video clip from the images
+        video = create_video_from_images(images, new_durations_per_image)
 
     # Set the audio of the video clip
     video = video.set_audio(audio_clip)
 
     # Write the result to a file
     video.write_videofile(video_dir, codec='mpeg4', fps=24, bitrate='8000k')
-
-    if create_portrait:
-        # Create a video clip from the images
-        video_portrait = create_video_from_images(images, new_durations_per_image, ratio='portrait')
-        
-        # Set the audio of the video clip
-        video_portrait = video_portrait.set_audio(audio_clip)
-
-        # Write the result to 2 files
-        video_portrait.write_videofile(video_dir.replace('.mp4', ' portrait.mp4'), codec='mpeg4', fps=24, bitrate='8000k')
 
 def create_video_from_images(images: list[str], durations_per_image: list[int] | None, ratio: str = 'landscape'):
     # Create a list of clips

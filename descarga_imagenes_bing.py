@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-from openai import OpenAI
+import math
+import time
+import traceback
 import json
 import click
 import os
@@ -7,15 +9,7 @@ import random
 from bing_create.main import ImageGenerator
 import pandas as pd
 
-max_retries = 100
-n_imgs_per_sentence = 2
-client = OpenAI()
-voices = {
-    'terror': 'onyx',
-    'cuentos': 'echo',
-}
-
-default_voice = voices[os.getcwd().split('/')[-1]]
+max_retries = 15
 
 cookies_bing: list = []
 
@@ -42,30 +36,42 @@ def download_and_save_images_bing(file: str):
         cookie = random.choice(cookies_bing)
 
         print(f"Usando cuenta: {cookie['cuenta']}")
+        
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                # Create an instance of the ImageGenerator class
+                bing_image_generator = ImageGenerator(
+                    auth_cookie_u=cookie['auth_cookie_u'],
+                    auth_cookie_srchhpgusr=cookie['auth_cookie_srchhpgusr'],
+                    logging_enabled=False,
+                )
+                image_path = row['location']
+                image_link = row['link']
+                response = bing_image_generator.client.get(image_link)
+                image = response.content
+                if response.status_code != 200:
+                    print("Exception happened while saving image! (Response was not ok). Duplicating previous image...")
+                    # We duplicate the previous image
+                    if previous_image_path is None:
+                        print("There is no previous image to duplicate. Skipping...")
+                        continue
+                    with open(previous_image_path, "rb") as f:
+                        image = f.read()
+                        f.close()
 
-        # Create an instance of the ImageGenerator class
-        bing_image_generator = ImageGenerator(
-            auth_cookie_u=cookie['auth_cookie_u'],
-            auth_cookie_srchhpgusr=cookie['auth_cookie_srchhpgusr'],
-            logging_enabled=False,
-        )
-        image_path = row['location']
-        image_link = row['link']
-        response = bing_image_generator.client.get(image_link)
-        image = response.content
-        if response.status_code != 200:
-            print("Exception happened while saving image! (Response was not ok). Duplicating previous image...")
-            # We duplicate the previous image
-            if previous_image_path is None:
-                print("There is no previous image to duplicate. Skipping...")
-                continue
-            with open(previous_image_path, "rb") as f:
-                image = f.read()
-                f.close()
-
-        with open(image_path, "wb") as f:
-            f.write(image)
-            f.close()
-
+                with open(image_path, "wb") as f:
+                    f.write(image)
+                    f.close()
+                break
+            except Exception as e:
+                print(f"Error creating image: {e}. Retrying...")
+                traceback.print_exc()
+                retry_count += 1
+                backoff_time = math.pow(1.5, retry_count)  # exponential backoff
+                time.sleep(backoff_time)  # pause execution for backoff_time seconds
+        if retry_count >= max_retries:
+            print("Max retries reached trying to download image. Exiting...")
+            exit(1) 
 if __name__ == '__main__':
     main()
