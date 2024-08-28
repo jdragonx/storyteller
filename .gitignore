@@ -2,10 +2,10 @@
 **/.tmp/
 
 # Ignore the content of all folders containing the word 'video' in their name
-**/*videos*/**
+**/*videos*
 
 # Ignore the content of any folder containing 'compilaciones' in its name
-**/*compilaciones*/**
+**/*compilaciones
 
 # Ignore the content of any folder containing 'imagenes' in its name
 **/*imagenes*/**
@@ -19,4 +19,12 @@
 # Ignore any files ending with "mp4"
 **/*mp4
 
-**/*links*/**
+**/*links*
+
+**/historias
+
+**/historias_terminadas
+
+**/historias_para_video
+
+**/descripciones_historias
