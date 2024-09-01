@@ -91,7 +91,7 @@ def create_thumbnail(file: str, output: str):
     draw = ImageDraw.Draw(image)
 
     # Create a font object with a larger size, say 25
-    font = ImageFont.truetype('/home/jdragonx/storyteller/fonts/dejavu-sans/DejaVuSans-Bold.ttf', 100)
+    font = ImageFont.truetype('../fonts/dejavu-sans/DejaVuSans-Bold.ttf', 100)
 
     # Get the filename without extension
     text = os.path.splitext(os.path.basename(file))[0]
