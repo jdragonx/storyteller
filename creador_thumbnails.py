@@ -91,7 +91,7 @@ def create_thumbnail(file: str, output: str):
     draw = ImageDraw.Draw(image)
 
     # Create a font object with a larger size, say 25
-    font = ImageFont.truetype('/home/jdragonx/storyteller/fonts/dejavu-sans/DejaVuSans-Bold.ttf', 25)
+    font = ImageFont.truetype('/home/jdragonx/storyteller/fonts/dejavu-sans/DejaVuSans-Bold.ttf', 100)
 
     # Get the filename without extension
     text = os.path.splitext(os.path.basename(file))[0]
@@ -113,14 +113,14 @@ def create_thumbnail(file: str, output: str):
     draw.multiline_text(text_position, text, font=font, fill='#800000')
 
     # Save the image with maximum quality
-    output_file_path = f'{output}/{os.path.basename(file.split(".")[0] + ".jpg")}'
+    output_file_path = f'{output}/{os.path.basename(file.split(".")[0] + ".png")}'
     quality = 100
     image.save(output_file_path, quality=quality)
 
     # Check the file size and reduce quality if necessary
     while os.path.getsize(output_file_path) > 2 * 1024 * 1024:  # 2MB
         quality -= 5  # reduce quality by 5
-        image.save(output_file_path, 'JPEG', quality=quality)
+        image.save(output_file_path, quality=quality)
 
 if __name__ == "__main__":
     main()
