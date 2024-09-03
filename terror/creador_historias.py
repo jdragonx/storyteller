@@ -300,6 +300,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
 
     # Write the story to the file
     with open(filename, 'w') as f:
+        print(f"Guardando historia: {titulo}")
         f.write(historia)
     
     if short or long:

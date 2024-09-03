@@ -9,7 +9,7 @@ import random
 from bing_create.main import ImageGenerator
 import pandas as pd
 
-max_retries = 15
+max_retries = 20
 
 cookies_bing: list = []
 
