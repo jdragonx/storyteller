@@ -9,7 +9,7 @@ import random
 from bing_create.main import ImageGenerator
 import pandas as pd
 
-max_retries = 20
+max_retries = 17
 
 cookies_bing: list = []
 
@@ -68,7 +68,7 @@ def download_and_save_images_bing(file: str):
                 print(f"Error creating image: {e}. Retrying...")
                 traceback.print_exc()
                 retry_count += 1
-                backoff_time = math.pow(1.5, retry_count)  # exponential backoff
+                backoff_time = math.pow(2, retry_count)  # exponential backoff
                 time.sleep(backoff_time)  # pause execution for backoff_time seconds
         if retry_count >= max_retries:
             print("Max retries reached trying to download image. Exiting...")
