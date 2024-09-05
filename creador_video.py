@@ -193,7 +193,6 @@ def create_narration(oraciones: list[str], audio_path: str, voice: str):
                     model="tts-1",
                     voice=voice,
                     input=oracion,
-                    speed=0.9
                 )
                 temporal_path = f".tmp/.discard/temp_audio.mp3"
                 response.stream_to_file(temporal_path)
