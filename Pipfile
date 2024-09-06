@@ -15,6 +15,7 @@ pillow = "~=10.4.0"
 tiktoken = "~=0.7.0"
 pandas = "~=2.2.2"
 selenium = "~=4.23.1"
+bs4 = "*"
 
 [dev-packages]
 
