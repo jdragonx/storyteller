@@ -169,17 +169,13 @@ def create_story(short: bool, do_trends: bool, long: bool):
         'gemelos'
     ]
 
-    trends = [
-        'mr beast'
-    ]
-
     n_details = 1 if do_trends else random.choices([0, 1], weights=[4, 1])[0]
-    details: list = random.sample(trends if do_trends else details, n_details)
+    details: list = random.sample(details, n_details)
 
     details_instructions = f", siempre te aseguras de poner todos los siguientes detalles en el outline: {', '.join(details).lower()}" if len(details) else ""
     format_instructions = '{"outline": "aquí pones el outline, de forma seguida y continua, sin bullet points ni numeración.", "titulo": "aquí pondrás el título de la historia, debes tener en cuenta que debe ser un título muy intrigante, el cual llame la atención enseguida con solo verlo y obligue a las personas abrir la historia para saber de qué se trata. La historia será publicada online por lo que el título es extremadamente importante, piensa que será narrada en un video de youtube, por eso el título debe ser el que daría los mejores resultados para que los usuarios de youtube que lo vean den click en el video. Además debe ser un título corto, máximo de 7 palabras. El título siempre debe ser en idioma español, sin errores de codificación."}'
 
-    longitud = " La historia va a ser leída con una duración de entre 10 a 15 minutos y tendrá entre 1000 y 3000 palabras, con varios párrafos. Expande cada tema del outline en su totalidad y con extremo detalle." if not short else " La historia va a ser leída con una duración de 30 segundos y tendrá alrededor de 100 palabras, con un único párrafo."
+    longitud = " La historia va a ser leída con una duración de 1 hora y tendrá 10.000 palabras, con varios párrafos. Expande cada tema del outline en su totalidad y con extremo detalle." if not short else " La historia va a ser leída con una duración de 30 segundos y tendrá alrededor de 100 palabras, con un único párrafo."
 
     messages = [
       {'role': 'system', 'content': f'Eres un chabot que crea un outline para una historia de terror{details_instructions}.{longitud}{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_generales} Siempre envías el formato json correcto, el cual sigue estas directrices: {format_instructions}'},
