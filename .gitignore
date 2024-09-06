@@ -18,13 +18,3 @@
 
 # Ignore any files ending with "mp4"
 **/*mp4
-
-**/*links*
-
-**/historias
-
-**/historias_terminadas
-
-**/historias_para_video
-
-**/descripciones_historias
