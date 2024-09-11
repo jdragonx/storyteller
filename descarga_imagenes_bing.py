@@ -28,6 +28,8 @@ def download_and_save_images_bing(file: str):
         while retry_count < max_retries:
             try:
                 image_path = row['location']
+                # We verify all the folders in the path exist
+                os.makedirs(os.path.dirname(image_path), exist_ok=True)
                 image_link = row['link']
                 response = requests.get(image_link)
                 image = response.content
