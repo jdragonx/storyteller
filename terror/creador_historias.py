@@ -35,20 +35,14 @@ instrucciones_generales = ' Siempre evitas cometer errores ortográficos o grama
 @click.option('--num_stories', '-n', default=1, type=int, help='Número de historias a crear')
 @click.option('--short', '-s', is_flag=True, help='Crea historias cortas')
 @click.option('--do_trends', '-t', is_flag=True, help='Crea historias basadas en tendencias')
-@click.option('--long', '-l', is_flag=True, help='Crea historias largas usando la historia corta o normal como base')
-def main(num_stories, short, do_trends, long):
+def main(num_stories, short, do_trends):
     # Creación de las historias
     for i in range(num_stories):
         print(f"Creando historia {i+1} de {num_stories}")
-        create_story(short, do_trends, long)
+        create_story(short, do_trends)
         print(f"*" * 50)
 
-def create_story(short: bool, do_trends: bool, long: bool):
-    # Historias largas definimos l final siempre en nuestro final personalizado, ya que al extender la historia, el final puede cambiar.
-    # así nos aseguramos de que el final sea el personalizado una mayor cantidad de veces.
-    global tipo_de_final
-    if long:
-        tipo_de_final = choices_final[0]
+def create_story(short: bool, do_trends: bool):
     # Creación del outline
     print("Creando outline...")
     details = [
@@ -296,7 +290,7 @@ def create_story(short: bool, do_trends: bool, long: bool):
         print(f"Guardando historia: {titulo}")
         f.write(historia)
     
-    # Write the description to the file, but only if the story is short or long
+    # Write the description to the file
     descripcion_filename = f'./descripciones_historias/{filename.split("/")[-1]}'
     with open(descripcion_filename, 'w') as f:
         f.write(descripcion)
