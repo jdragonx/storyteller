@@ -61,6 +61,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
 
     # Click on the video
     video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card')))
+    time.sleep(10)
     ActionChains(driver).move_to_element(video_to_import).click().perform()
     time.sleep(10)
 
@@ -89,16 +90,18 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     ActionChains(driver).move_to_element(date_input).click().perform()
 
     # Set the date on the input box
-    date_input_box = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="textbox"]')))
-    date_input_box.clear()
+    date_input_box = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input-2"]/input')))
+    date_input_box.send_keys("\b" * 20)
     date_input_box.send_keys(date)
     date_input_box.send_keys("\n")
+    time.sleep(10)
 
     # Click on the done button
     done_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="done-button"]')))
     ActionChains(driver).move_to_element(done_button).click().perform()
 
 date_start = "02 oct 2024"
+videos_per_date = 5
 # Set the locale to Spanish
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 
@@ -138,8 +141,8 @@ while True:
     is_first = False
     videos_for_date += 1
     time.sleep(10)
-    # If we have set 5 videos for the date, then we change the date
-    if videos_for_date >= 5:
+    # If we have set enough videos for the date, then we change the date
+    if videos_for_date >= videos_per_date:
         videos_for_date = 0
         # Parse the current date
         current_date = datetime.strptime(date_start, "%d %b %Y")
@@ -167,8 +170,8 @@ while True:
     is_first = False
     videos_for_date += 1
     time.sleep(10)
-    # If we have set 5 videos for the date, then we change the date
-    if videos_for_date >= 5:
+    # If we have set enough videos for the date, then we change the date
+    if videos_for_date >= videos_per_date:
         videos_for_date = 0
         # Parse the current date
         current_date = datetime.strptime(date_start, "%d %b %Y")
