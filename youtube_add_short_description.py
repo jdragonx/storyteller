@@ -1,10 +1,7 @@
-import json
 import os
 import traceback
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2 import service_account
-from google.auth.transport.requests import Request
 import pickle
 
 # Configurar la API de YouTube
@@ -17,7 +14,7 @@ DEFAULT_DESCRIPTION = (
     "#paranormal #creepypasta\n\n"
     "Musica de terror creative commons\n\n"
     "https://soundcloud.com/royaltyfreebackgroundmusic/sets/creative-commons-music-273\n\n"
-    "Imágenes de IA y narración de IA."
+    "Imágenes, narración e historia de IA."
 )
 
 def get_authenticated_service(client_secrets_file, scopes):
@@ -82,7 +79,7 @@ def actualizar_videos(client_secrets_file):
                 # Si no hay descripción, nos saltamos el video
                 continue
 
-            new_description = new_description + "\n\n" + video_description
+            new_description = new_description + "\n\n" + DEFAULT_DESCRIPTION
 
             print(f"Actualizando video: {video_title}")
 
