@@ -44,7 +44,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
         # Click on add final screen
         add_final_screen_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="endscreens-button"]')))
         ActionChains(driver).move_to_element(add_final_screen_button).click().perform()
-        time.sleep(5)
+        time.sleep(10)
 
         # Click on import from other video
         import_from_video_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="import-endscreen-from-video-button"]')))
@@ -62,7 +62,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     # Click on the video
     video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]')))
     ActionChains(driver).move_to_element(video_to_import).click().perform()
-    time.sleep(5)
+    time.sleep(10)
 
     if not is_short:
         # Click on save
@@ -95,13 +95,13 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     done_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="done-button"]')))
     ActionChains(driver).move_to_element(done_button).click().perform()
 
-date_start = "01 oct 2024"
+date_start = "02 oct 2024"
 # Set the locale to Spanish
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 
 driver = uc.Chrome()
-driver.set_page_load_timeout(20)
-wait = WebDriverWait(driver, 20)
+driver.set_page_load_timeout(60)
+wait = WebDriverWait(driver, 60)
 
 driver.get("https://www.youtube.com/signin")
 
@@ -134,7 +134,7 @@ while True:
     set_video_data(driver, wait, is_first, date)
     is_first = False
     videos_for_date += 1
-    time.sleep(5)
+    time.sleep(10)
     # If we have set 5 videos for the date, then we change the date
     if videos_for_date >= 5:
         videos_for_date = 0
@@ -163,7 +163,7 @@ while True:
     set_video_data(driver, wait, is_first, date, is_short=True)
     is_first = False
     videos_for_date += 1
-    time.sleep(5)
+    time.sleep(10)
     # If we have set 5 videos for the date, then we change the date
     if videos_for_date >= 5:
         videos_for_date = 0
