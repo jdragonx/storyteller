@@ -68,6 +68,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
         # Click on save
         save_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="save-button"]')))
         ActionChains(driver).move_to_element(save_button).click().perform()
+        time.sleep(10)
 
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
