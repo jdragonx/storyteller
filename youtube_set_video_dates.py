@@ -18,7 +18,7 @@ driver = uc.Chrome()
 driver.set_page_load_timeout(60)
 wait = WebDriverWait(driver, 60)
 
-def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool, date: str, is_short: bool = False):
+def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool, date: str, is_short: bool):
     # Clik each video and set all the required data
     # Open the first video
     video = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-thumbnail"]')))
@@ -122,72 +122,48 @@ ActionChains(driver).move_to_element(change_account_button).click().perform()
 account_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="contents"]/ytd-account-item-renderer[2]')))
 ActionChains(driver).move_to_element(account_button).click().perform()
 
-is_first = True
-date = date_start
-videos_for_date = 0
-days = 0
-while True:
-    # Videos page
-    driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/upload?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
+def run_loop(is_short: bool):
+    is_first = True
+    date = date_start
+    videos_for_date = 0
+    days = 0
+    while True:
+        if not is_short:
+            # Videos page
+            driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/upload?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
+        else:
+            # Shorts page
+            driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/short?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
 
-    # Verify if the "no content" message is present
-    videos_div = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-list"]/div/div[2]')))
-    # If the div has the class "no-content", then there are no videos to set
-    if "no-content" in videos_div.get_attribute("class"):
-        print("No videos to set")
-        break
-    
-    # Set the first video
-    set_video_data(driver, wait, is_first, date)
-    is_first = False
-    videos_for_date += 1
-    time.sleep(10)
-    # If we have set enough videos for the date, then we change the date
-    if videos_for_date >= videos_per_date:
-        days += 1
-        # If we have set the required number of days, then we break
-        if days >= number_of_days:
+        # Verify if the "no content" message is present
+        videos_div = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-list"]/div/div[2]')))
+        # If the div has the class "no-content", then there are no videos to set
+        if "no-content" in videos_div.get_attribute("class"):
+            print("No videos to set")
             break
-        videos_for_date = 0
-        # Parse the current date
-        current_date = datetime.strptime(date_start, "%d %b %Y")
-        # Increment the date by one day
-        new_date = current_date + timedelta(days=1)
-        # Format the new date back to the required format
-        date = new_date.strftime("%d %b %Y")
+        
+        # Set the first video
+        set_video_data(driver, wait, is_first, date, is_short)
+        is_first = False
+        videos_for_date += 1
+        time.sleep(10)
+        # If we have set enough videos for the date, then we change the date
+        if videos_for_date >= videos_per_date:
+            days += 1
+            # If we have set the required number of days, then we break
+            if days >= number_of_days:
+                break
+            videos_for_date = 0
+            # Parse the current date
+            current_date = datetime.strptime(date_start, "%d %b %Y")
+            # Increment the date by one day
+            new_date = current_date + timedelta(days=1)
+            # Format the new date back to the required format
+            date = new_date.strftime("%d %b %Y")
 
-is_first = True
-date = date_start
-videos_for_date = 0
-days = 0
-while True:
-    # Shorts page
-    driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/short?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
-
-    # Verify if the "no content" message is present
-    videos_div = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-list"]/div/div[2]')))
-    # If the div has the class "no-content", then there are no videos to set
-    if "no-content" in videos_div.get_attribute("class"):
-        print("No shorts to set")
-        break
-    
-    # Set the first video
-    set_video_data(driver, wait, is_first, date, is_short=True)
-    is_first = False
-    videos_for_date += 1
-    time.sleep(10)
-    # If we have set enough videos for the date, then we change the date
-    if videos_for_date >= videos_per_date:
-        days += 1
-        # If we have set the required number of days, then we break
-        if days >= number_of_days:
-            break
-        videos_for_date = 0
-        # Parse the current date
-        current_date = datetime.strptime(date_start, "%d %b %Y")
-        # Increment the date by one day
-        new_date = current_date + timedelta(days=1)
-        # Format the new date back to the required format
-        date = new_date.strftime("%d %b %Y")
+# Run for videos
+run_loop(False)
+# Run for shorts
+run_loop(True)
 
 driver.quit()
