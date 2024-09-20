@@ -9,6 +9,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
+# The settings
+date_start = "02 oct 2024"
+number_of_days = 1
+videos_per_date = 5
+locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
+driver = uc.Chrome()
+driver.set_page_load_timeout(60)
+wait = WebDriverWait(driver, 60)
+
 def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool, date: str, is_short: bool = False):
     # Clik each video and set all the required data
     # Open the first video
@@ -100,18 +109,9 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     done_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="done-button"]')))
     ActionChains(driver).move_to_element(done_button).click().perform()
 
-date_start = "02 oct 2024"
-videos_per_date = 5
-# Set the locale to Spanish
-locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
-
-driver = uc.Chrome()
-driver.set_page_load_timeout(60)
-wait = WebDriverWait(driver, 60)
-
 driver.get("https://www.youtube.com/signin")
 
-# Wait for the 2 step verification
+# Wait for the sign in to be done
 input("Press Enter to continue after singing in")
 
 # Change account to the one we want to use
@@ -125,6 +125,7 @@ ActionChains(driver).move_to_element(account_button).click().perform()
 is_first = True
 date = date_start
 videos_for_date = 0
+days = 0
 while True:
     # Videos page
     driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/upload?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
@@ -143,6 +144,10 @@ while True:
     time.sleep(10)
     # If we have set enough videos for the date, then we change the date
     if videos_for_date >= videos_per_date:
+        days += 1
+        # If we have set the required number of days, then we break
+        if days >= number_of_days:
+            break
         videos_for_date = 0
         # Parse the current date
         current_date = datetime.strptime(date_start, "%d %b %Y")
@@ -154,6 +159,7 @@ while True:
 is_first = True
 date = date_start
 videos_for_date = 0
+days = 0
 while True:
     # Shorts page
     driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/short?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
@@ -172,6 +178,10 @@ while True:
     time.sleep(10)
     # If we have set enough videos for the date, then we change the date
     if videos_for_date >= videos_per_date:
+        days += 1
+        # If we have set the required number of days, then we break
+        if days >= number_of_days:
+            break
         videos_for_date = 0
         # Parse the current date
         current_date = datetime.strptime(date_start, "%d %b %Y")
