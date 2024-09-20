@@ -44,7 +44,6 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
         # Click on add final screen
         add_final_screen_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="endscreens-button"]')))
         ActionChains(driver).move_to_element(add_final_screen_button).click().perform()
-        time.sleep(10)
 
         # Click on import from other video
         import_from_video_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="import-endscreen-from-video-button"]')))
@@ -58,9 +57,12 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     # Search for the video
     search_video_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="search-yours"]')))
     search_video_input.send_keys("El festín de la isla oscura #terror #miedo")
-    time.sleep(10)
 
     # Click on the video
+    video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]')))
+    ActionChains(driver).move_to_element(video_to_import).click().perform()
+
+    # Click on the video again
     video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]')))
     ActionChains(driver).move_to_element(video_to_import).click().perform()
     time.sleep(10)
