@@ -72,10 +72,12 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
     ActionChains(driver).move_to_element(next_button).click().perform()
+    time.sleep(10)
 
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
     ActionChains(driver).move_to_element(next_button).click().perform()
+    time.sleep(10)
 
     # Click on expand to set the date
     expand_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="second-container-expand-button"]')))
