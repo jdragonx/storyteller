@@ -60,7 +60,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, is_first: bool
     search_video_input.send_keys("El festín de la isla oscura #terror #miedo")
 
     # Click on the video
-    video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]')))
+    video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/ytcp-video-pick-dialog/ytcp-dialog/tp-yt-paper-dialog/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card/div')))
     ActionChains(driver).move_to_element(video_to_import).click().perform()
     time.sleep(10)
 
