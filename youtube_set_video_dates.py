@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "03 oct 2024"
-number_of_days = 1
+date_start = "04 oct 2024"
+number_of_days = 3
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
