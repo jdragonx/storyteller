@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "04 oct 2024"
-number_of_days = 3
+date_start = "07 oct 2024"
+number_of_days = 14
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
@@ -153,7 +153,7 @@ def run_loop(is_short: bool):
                 break
             videos_for_date = 0
             # Parse the current date
-            current_date = datetime.strptime(date_start, "%d %b %Y")
+            current_date = datetime.strptime(date, "%d %b %Y")
             # Increment the date by one day
             new_date = current_date + timedelta(days=1)
             # Format the new date back to the required format
