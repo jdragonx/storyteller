@@ -10,15 +10,15 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "15 oct 2024"
-number_of_days = 1
+date_start = "16 oct 2024"
+number_of_days = 5
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
 driver.set_page_load_timeout(60)
 wait = WebDriverWait(driver, 60)
 
-def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_short: bool):
+def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_short: bool, is_first: bool = False):
     # Clik each video and set all the required data
     # Open the first video
     video = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-thumbnail"]')))
@@ -27,7 +27,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     # Set the playlist
     select_list = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="basics"]/div[4]/div[3]/div[1]/ytcp-video-metadata-playlists/ytcp-text-dropdown-trigger/ytcp-dropdown-trigger/div/div[3]')))
     ActionChains(driver).move_to_element(select_list).click().perform()
-    playlist = wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="checkbox-{1 if is_short else 0}"]'))) # The playlist that appears first is the last one saved manually
+    playlist = wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="checkbox-{1 if is_first else 0}"]'))) # The playlist that appears first is the last one saved
 
     ActionChains(driver).move_to_element(playlist).click().perform()
     ready_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/ytcp-button[2]/ytcp-button-shape/button')))
@@ -126,6 +126,7 @@ def run_loop(is_short: bool):
     date = date_start
     videos_for_date = 0
     days = 0
+    is_first = True
     while True:
         if not is_short:
             # Videos page
@@ -141,8 +142,9 @@ def run_loop(is_short: bool):
             print("No videos to set")
             break
         
-        # Set the first video
-        set_video_data(driver, wait, date, is_short)
+        # Set the video
+        set_video_data(driver, wait, date, is_short, is_first)
+        is_first = False
         videos_for_date += 1
         time.sleep(10)
         # If we have set enough videos for the date, then we change the date
@@ -160,7 +162,7 @@ def run_loop(is_short: bool):
             date = new_date.strftime("%d %b %Y")
 
 # Run for videos
-# run_loop(False)
+run_loop(False)
 # Run for shorts
 run_loop(True)
 
