@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "07 oct 2024"
-number_of_days = 14
+date_start = "15 oct 2024"
+number_of_days = 1
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
@@ -27,7 +27,7 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     # Set the playlist
     select_list = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="basics"]/div[4]/div[3]/div[1]/ytcp-video-metadata-playlists/ytcp-text-dropdown-trigger/ytcp-dropdown-trigger/div/div[3]')))
     ActionChains(driver).move_to_element(select_list).click().perform()
-    playlist = wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="checkbox-{0 if is_short else 1}"]'))) # The playlist for shorts is the first one and the one for videos is the second one
+    playlist = wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="checkbox-{1 if is_short else 0}"]'))) # The playlist that appears first is the last one saved manually
 
     ActionChains(driver).move_to_element(playlist).click().perform()
     ready_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/ytcp-button[2]/ytcp-button-shape/button')))
@@ -160,7 +160,7 @@ def run_loop(is_short: bool):
             date = new_date.strftime("%d %b %Y")
 
 # Run for videos
-run_loop(False)
+# run_loop(False)
 # Run for shorts
 run_loop(True)
 
