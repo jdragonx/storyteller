@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "16 oct 2024"
-number_of_days = 5
+date_start = "18 oct 2024"
+number_of_days = 2
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
@@ -92,14 +92,17 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
 
     # Click on expand to set the date
     expand_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="second-container-expand-button"]')))
+    time.sleep(2)
     ActionChains(driver).move_to_element(expand_button).click().perform()
 
     # Click on the date input trigger
     date_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="datepicker-trigger"]')))
+    time.sleep(2)
     ActionChains(driver).move_to_element(date_input).click().perform()
 
     # Set the date on the input box
     date_input_box = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input-2"]/input')))
+    time.sleep(2)
     date_input_box.send_keys("\b" * 20)
     date_input_box.send_keys(date)
     date_input_box.send_keys("\n")
@@ -126,7 +129,7 @@ def run_loop(is_short: bool):
     date = date_start
     videos_for_date = 0
     days = 0
-    is_first = True
+    is_first = False
     while True:
         if not is_short:
             # Videos page
@@ -162,7 +165,7 @@ def run_loop(is_short: bool):
             date = new_date.strftime("%d %b %Y")
 
 # Run for videos
-run_loop(False)
+# run_loop(False)
 # Run for shorts
 run_loop(True)
 
