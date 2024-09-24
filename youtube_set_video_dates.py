@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "18 oct 2024"
-number_of_days = 2
+date_start = "21 oct 2024"
+number_of_days = 7
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
@@ -68,11 +68,21 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     search_video_input.send_keys("El festín de la isla oscura #terror #miedo")
     time.sleep(10)
 
-    # Click on the video
-    video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card')))
-    time.sleep(10)
-    ActionChains(driver).move_to_element(video_to_import).click().perform()
-    time.sleep(10)
+    retry = 0
+    while True:
+        try:
+            # Click on the video
+            video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card')))
+            time.sleep(10)
+            ActionChains(driver).move_to_element(video_to_import).click().perform()
+            time.sleep(10)
+            break
+        except Exception as e:
+            print(e)
+            retry += 1
+            if retry >= 5:
+                raise e
+            time.sleep(5)
 
     if not is_short:
         # Click on save
@@ -90,23 +100,33 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     ActionChains(driver).move_to_element(next_button).click().perform()
     time.sleep(10)
 
-    # Click on expand to set the date
-    expand_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="second-container-expand-button"]')))
-    time.sleep(2)
-    ActionChains(driver).move_to_element(expand_button).click().perform()
+    retry = 0
+    while True:
+        try:
+            # Click on expand to set the date
+            expand_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="second-container-expand-button"]')))
+            time.sleep(2)
+            ActionChains(driver).move_to_element(expand_button).click().perform()
 
-    # Click on the date input trigger
-    date_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="datepicker-trigger"]')))
-    time.sleep(2)
-    ActionChains(driver).move_to_element(date_input).click().perform()
+            # Click on the date input trigger
+            date_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="datepicker-trigger"]')))
+            time.sleep(2)
+            ActionChains(driver).move_to_element(date_input).click().perform()
 
-    # Set the date on the input box
-    date_input_box = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input-2"]/input')))
-    time.sleep(2)
-    date_input_box.send_keys("\b" * 20)
-    date_input_box.send_keys(date)
-    date_input_box.send_keys("\n")
-    time.sleep(10)
+            # Set the date on the input box
+            date_input_box = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input-2"]/input')))
+            time.sleep(2)
+            date_input_box.send_keys("\b" * 20)
+            date_input_box.send_keys(date)
+            date_input_box.send_keys("\n")
+            time.sleep(10)
+            break
+        except Exception as e:
+            print(e)
+            retry += 1
+            if retry >= 5:
+                raise e
+            time.sleep(5)
 
     # Click on the done button
     done_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="done-button"]')))
@@ -129,7 +149,7 @@ def run_loop(is_short: bool):
     date = date_start
     videos_for_date = 0
     days = 0
-    is_first = False
+    is_first = True
     while True:
         if not is_short:
             # Videos page
@@ -165,7 +185,7 @@ def run_loop(is_short: bool):
             date = new_date.strftime("%d %b %Y")
 
 # Run for videos
-# run_loop(False)
+run_loop(False)
 # Run for shorts
 run_loop(True)
 
