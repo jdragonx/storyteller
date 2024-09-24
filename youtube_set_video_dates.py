@@ -10,7 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "21 oct 2024"
+date_start = "28 oct 2024"
 number_of_days = 7
 videos_per_date = 5
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
@@ -172,6 +172,7 @@ def run_loop(is_short: bool):
         time.sleep(10)
         # If we have set enough videos for the date, then we change the date
         if videos_for_date >= videos_per_date:
+            print(f"Finished setting {'shorts' if is_short else 'videos'} for {date}")
             days += 1
             # If we have set the required number of days, then we break
             if days >= number_of_days:
