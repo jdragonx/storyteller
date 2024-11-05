@@ -42,8 +42,8 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     ActionChains(driver).move_to_element(is_ai_button).click().perform()
 
     # Remove from feed
-    feed_checkbox = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-ve/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[9]/div[4]/ytcp-checkbox-lit/div')))
-    ActionChains(driver).move_to_element(feed_checkbox).click().perform()
+    # feed_checkbox = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-ve/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[9]/div[4]/ytcp-checkbox-lit/div')))
+    # ActionChains(driver).move_to_element(feed_checkbox).click().perform()
 
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
