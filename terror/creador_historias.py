@@ -169,7 +169,7 @@ def create_story(short: bool, do_trends: bool):
     details_instructions = f", siempre te aseguras de poner todos los siguientes detalles en el outline: {', '.join(details).lower()}" if len(details) else ""
     format_instructions = '{"outline": "aquí pones el outline, de forma seguida y continua, sin bullet points ni numeración.", "titulo": "aquí pondrás el título de la historia, debes tener en cuenta que debe ser un título muy intrigante, el cual llame la atención enseguida con solo verlo y obligue a las personas abrir la historia para saber de qué se trata. La historia será publicada online por lo que el título es extremadamente importante, piensa que será narrada en un video de youtube, por eso el título debe ser el que daría los mejores resultados para que los usuarios de youtube que lo vean den click en el video. Además debe ser un título corto, máximo de 7 palabras. El título siempre debe ser en idioma español, sin errores de codificación."}'
 
-    longitud = " La historia va a ser leída con una duración de 1 hora y tendrá 10.000 palabras, con varios párrafos. Expande cada tema del outline en su totalidad y con extremo detalle." if not short else " La historia va a ser leída con una duración de 30 segundos y tendrá alrededor de 100 palabras, con un único párrafo."
+    longitud = " La historia va a ser leída con una duración de 1 hora y tendrá 10.000 palabras, con varios párrafos. Expande cada tema del outline en su totalidad y con extremo detalle." if not short else " La historia va a ser leída con una duración de 1 minuto y medio y tendrá alrededor de 300 palabras, con un único párrafo."
 
     messages = [
       {'role': 'system', 'content': f'Eres un chabot que crea un outline para una historia de terror{details_instructions}.{longitud}{tipo_de_historia}{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_generales} Siempre envías el formato json correcto, el cual sigue estas directrices: {format_instructions}'},
@@ -232,14 +232,20 @@ def create_story(short: bool, do_trends: bool):
     # Either increase the length of the story if it's too short, or reduce it if it's too long, depending on the 'short' parameter
     current_attempt = 0
     if not short:
-        while historia and (len(re.findall(r'\b\w+\b', historia)) < 500) and current_attempt < 10:
+        while historia and (len(re.findall(r'\b\w+\b', historia)) < 1000) and current_attempt < 10:
             historia = increase_length(historia)
             current_attempt += 1
+        if current_attempt >= 10:
+            print("No se pudo expandir la historia")
+            return
         descripcion = crear_descripcion_historia(historia)
     else:
-        while historia and (len(re.findall(r'\b\w+\b', historia)) > 110) and current_attempt < 10:
+        while historia and (len(re.findall(r'\b\w+\b', historia)) > 350) and current_attempt < 10:
             historia = reduce_length(historia)
             current_attempt += 1
+        if current_attempt >= 10:
+            print("No se pudo reducir la historia")
+            return
         descripcion = historia
     # Remove the dot on abreviations like Mr., Sr., Ms., Mrs., etc. and convert '...' to '.'
     historia = re.sub(r'\b(Mr|Sr|Ms|Mrs|Dr|St|Jr)\.', r'\1', historia)
@@ -298,7 +304,7 @@ def create_story(short: bool, do_trends: bool):
 def increase_length(historia: str):
     # Extension de la historia
     print("Extendiendo historia...")
-    format_instructions_historia_larga = '{"historia_expandida": "aquí pones la historia expandida, recuerda que debe ser mucho más extensa que la original, la nueva historia debe ser al menos 10 veces más extensa que la original, si no cumples con la longitud esperada se te pedirá que vuelvas a expandir la historia resultante hasta lograr la longitud esperada de entre 1000 y 3000 palabras, con varios párrafos."}'
+    format_instructions_historia_larga = '{"historia_expandida": "aquí pones la historia expandida, recuerda que debe ser mucho más extensa que la original, la nueva historia debe ser al menos 10 veces más extensa que la original, si no cumples con la longitud esperada se te pedirá que vuelvas a expandir la historia resultante hasta lograr la longitud esperada de entre 2000 y 6000 palabras, con varios párrafos."}'
     messages = [
       {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia pequeña e instantáneamente la transformas en un hit que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias pequeñas sean expandidas en historias grandes, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras con paciencia para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real. Siempre expandes cada oración de la historia, sin dejar ninguna oración sin haber sido expandida, para poder construir así una atmósfera completamente envolvente.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales} Usas varios párrafos para dar mayor facilidad a la lectura de tus historias. El formato json de tu respuesta es el siguiente: {format_instructions_historia_larga}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
@@ -326,7 +332,7 @@ def increase_length(historia: str):
 def reduce_length(historia: str):
     # Reducción de la historia
     print("Reduciendo historia...")
-    format_instructions_historia_corta = '{"historia_reducida": "aquí pones la historia reducida, recuerda que debe ser más corta que la original, debe tener alrededor de 100 palabras, con un único párrafo."}'
+    format_instructions_historia_corta = '{"historia_reducida": "aquí pones la historia reducida, recuerda que debe ser más corta que la original, debe tener alrededor de 300 palabras, con un único párrafo."}'
     messages = [
       {'role': 'system', 'content': f'Eres un escritor famoso, tomas una historia grande e instantáneamente la transformas en una historia pequeña que se llena de comentarios, admiración y mucha popularidad. Para lograr eso siempre te enfocas en que las historias grandes sean reducidas en historias un poco más pequeñas, pero conversen su esencia, no cambias el tipo de historia, ni el desenlace, creas grandes escenarios y sucesos que narras para lograr que la atmósfera atrape al lector y lo lleve al mundo de la historia como si fuera real.{estilo} Siempre narras tus historias en {persona_narracion}.{tipo_de_final}{instrucciones_de_historia_final}{instrucciones_generales} Usas un único párrafo para dar mayor facilidad a la lectura de tus historias. El formato json de tu respuesta es el siguiente: {format_instructions_historia_corta}\n\nLa historia es la siguiente:\n\n\n"{historia}"'},
     ]
