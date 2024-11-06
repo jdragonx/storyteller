@@ -238,7 +238,6 @@ def create_story(short: bool, do_trends: bool):
         if current_attempt >= 10:
             print("No se pudo expandir la historia")
             return
-        descripcion = crear_descripcion_historia(historia)
     else:
         while historia and (len(re.findall(r'\b\w+\b', historia)) > 350) and current_attempt < 10:
             historia = reduce_length(historia)
@@ -246,7 +245,8 @@ def create_story(short: bool, do_trends: bool):
         if current_attempt >= 10:
             print("No se pudo reducir la historia")
             return
-        descripcion = historia
+    
+    descripcion = crear_descripcion_historia(historia)
     # Remove the dot on abreviations like Mr., Sr., Ms., Mrs., etc. and convert '...' to '.'
     historia = re.sub(r'\b(Mr|Sr|Ms|Mrs|Dr|St|Jr)\.', r'\1', historia)
     historia = re.sub(r'\.\.\.', r'.', historia)
