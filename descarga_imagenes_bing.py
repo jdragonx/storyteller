@@ -17,6 +17,7 @@ def main(dir):
         download_and_save_images_bing(os.path.join(dir,file))
 
 def download_and_save_images_bing(file: str):
+    print(f"Downloading images for {file}")
 
     # Read the csv file with the links of the images
     df = pd.read_csv(file)
@@ -31,7 +32,7 @@ def download_and_save_images_bing(file: str):
                 # We verify all the folders in the path exist
                 os.makedirs(os.path.dirname(image_path), exist_ok=True)
                 image_link = row['link']
-                response = requests.get(image_link)
+                response = requests.get(image_link, timeout=60)
                 image = response.content
                 if response.status_code != 200:
                     print("Exception happened while saving image! (Response was not ok). Duplicating previous image...")
