@@ -10,9 +10,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "10 nov 2024"
-number_of_days = 7
-videos_per_date = 5
+date_start = "11 nov 2024"
+number_of_days = 10
+videos_per_date = 3
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
 driver.set_page_load_timeout(60)
@@ -49,46 +49,46 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
     ActionChains(driver).move_to_element(next_button).click().perform()
 
-    if not is_short:
-        # Click on add final screen
-        add_final_screen_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="endscreens-button"]')))
-        ActionChains(driver).move_to_element(add_final_screen_button).click().perform()
+    # if not is_short:
+    #     # Click on add final screen
+    #     add_final_screen_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="endscreens-button"]')))
+    #     ActionChains(driver).move_to_element(add_final_screen_button).click().perform()
 
-        # Click on import from other video
-        import_from_video_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="import-endscreen-from-video-button"]')))
-        ActionChains(driver).move_to_element(import_from_video_button).click().perform()
+    #     # Click on import from other video
+    #     import_from_video_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="import-endscreen-from-video-button"]')))
+    #     ActionChains(driver).move_to_element(import_from_video_button).click().perform()
 
-    else:
-        # Click on the add content button
-        add_content_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="shorts-content-links-add-button"]')))
-        ActionChains(driver).move_to_element(add_content_button).click().perform()
+    # else:
+    #     # Click on the add content button
+    #     add_content_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="shorts-content-links-add-button"]')))
+    #     ActionChains(driver).move_to_element(add_content_button).click().perform()
     
-    # Search for the video
-    search_video_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="search-yours"]')))
-    search_video_input.send_keys("El festín de la isla oscura #terror #miedo")
-    time.sleep(10)
+    # # Search for the video
+    # search_video_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="search-yours"]')))
+    # search_video_input.send_keys("la maldición de la vacuna #terror #miedo")
+    # time.sleep(10)
 
-    retry = 0
-    while True:
-        try:
-            # Click on the video
-            video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card')))
-            time.sleep(10)
-            ActionChains(driver).move_to_element(video_to_import).click().perform()
-            time.sleep(10)
-            break
-        except Exception as e:
-            print(e)
-            retry += 1
-            if retry >= 5:
-                raise e
-            time.sleep(5)
+    # retry = 0
+    # while True:
+    #     try:
+    #         # Click on the video
+    #         video_to_import = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dialog"]/div[2]/div/ytcp-video-pick-dialog-contents/div/div/div/ytcp-entity-card')))
+    #         time.sleep(10)
+    #         ActionChains(driver).move_to_element(video_to_import).click().perform()
+    #         time.sleep(10)
+    #         break
+    #     except Exception as e:
+    #         print(e)
+    #         retry += 1
+    #         if retry >= 5:
+    #             raise e
+    #         time.sleep(5)
 
-    if not is_short:
-        # Click on save
-        save_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="save-button"]')))
-        ActionChains(driver).move_to_element(save_button).click().perform()
-        time.sleep(10)
+    # if not is_short:
+    #     # Click on save
+    #     save_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="save-button"]')))
+    #     ActionChains(driver).move_to_element(save_button).click().perform()
+    #     time.sleep(10)
 
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
@@ -188,6 +188,6 @@ def run_loop(is_short: bool):
 # Run for videos
 run_loop(False)
 # Run for shorts
-run_loop(True)
+# run_loop(True)
 
 driver.quit()
