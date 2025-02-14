@@ -10,8 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
 # The settings
-date_start = "11 nov 2024"
-number_of_days = 10
+date_start = "21 nov 2024"
+number_of_days = 25
 videos_per_date = 3
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
@@ -41,9 +41,10 @@ def set_video_data(driver: webdriver.Chrome, wait: WebDriverWait, date: str, is_
     is_ai_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="details"]/div/ytcp-video-metadata-editor-advanced/div[2]/ytkp-altered-content-select/div[2]/tp-yt-paper-radio-group/tp-yt-paper-radio-button[1]')))
     ActionChains(driver).move_to_element(is_ai_button).click().perform()
 
-    # Remove from feed
-    feed_checkbox = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-ve/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[9]/div[4]/ytcp-checkbox-lit/div')))
-    ActionChains(driver).move_to_element(feed_checkbox).click().perform()
+    if is_short:
+        # Remove from feed
+        feed_checkbox = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-ve/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[9]/div[4]/ytcp-checkbox-lit/div')))
+        ActionChains(driver).move_to_element(feed_checkbox).click().perform()
 
     # Click on next
     next_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="next-button"]')))
@@ -149,7 +150,7 @@ def run_loop(is_short: bool):
     date = date_start
     videos_for_date = 0
     days = 0
-    is_first = True
+    is_first = False
     while True:
         if not is_short:
             # Videos page
@@ -186,8 +187,8 @@ def run_loop(is_short: bool):
             date = new_date.strftime("%d %b %Y")
 
 # Run for videos
-run_loop(False)
+# run_loop(False)
 # Run for shorts
-# run_loop(True)
+run_loop(True)
 
 driver.quit()
