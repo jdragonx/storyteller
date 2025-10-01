@@ -159,21 +159,21 @@ def get_image(historia: str, oracion: str, image_dir: str, i: int):
         return None
     
 def generate_and_save_image_openai(prompt: str, image_path: str, num_images: int):
-    image = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        n=num_images,
-        size="1024x1024",
-        response_format='b64_json',
-    )
+    for i in range(num_images):
+        image = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            n=1,
+            size="1024x1024",
+            response_format='b64_json',
+        )
+        for (j, image_data) in enumerate(image.data):
+            b64_string = image_data.b64_json
+            image_bytes = base64.b64decode(b64_string)
 
-    for (i, image_data) in enumerate(image.data):
-        b64_string = image_data.b64_json
-        image_bytes = base64.b64decode(b64_string)
-
-        with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
-            f.write(image_bytes)
-            f.close()
+            with open(image_path.replace('.jpg', f'.{i}.jpg'), "wb") as f:
+                f.write(image_bytes)
+                f.close()
 
 def create_narration(oraciones: list[str], audio_path: str, voice: str):
     combined_audio = None    
