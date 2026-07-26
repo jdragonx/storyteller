@@ -26,7 +26,7 @@ def actualizar_videos(client_secrets_file):
     scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
     # Obtener la lista de videos del canal (incluyendo privados)
-    playlist_id = "REDACTED_PLAYLIST_ID"  # ID de la lista de reproducción de subidas del canal
+    playlist_id = os.environ["YOUTUBE_UPLOADS_PLAYLIST_ID"]  # ID de la lista de reproducción de subidas del canal
 
     # Obtener la instancia autenticada de la API de YouTube
     try:

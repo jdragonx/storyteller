@@ -1,18 +1,27 @@
-# OpenAI Storyteller
+# Storyteller
 
-This project uses OpenAI's GPT-3.5 and DALL-E APIs, along with a Text-to-Speech (TTS) service, to create a narrated story with images, compile it into a video, and upload it to YouTube.
+Generates narrated story videos (full-length and Shorts) and uploads them to YouTube. For each story, the pipeline writes the script with OpenAI's GPT, generates narration audio via TTS, sources illustration images, and compiles everything into a video with `moviepy` before uploading through the YouTube Data API.
 
-## Project Structure
+## Project structure
 
-Each folder has their own story creator, and they all share the main video creator
+Content lives in per-category folders (currently `cuentos/` and `terror/`), each with its own `creador_historias.py` (story generator) and supporting scripts for descriptions, thumbnails, and images. All categories share the root-level video creation and YouTube upload scripts.
 
 ## Setup
 
 1. Clone the repository.
-2. Install the dependencies with pipenv: `pipenv install`.
-3. Copy the `.env.example` file to `.env` and fill in your API keys and other settings.
-4. Run the main script: `pipenv run python main.py`.
+2. Install dependencies with pipenv: `pipenv install`.
+3. Create a `.env` file (see below) in the root and in each category folder that needs one.
+4. Place your Google OAuth client secret at `client_secret_oauth.json` in the root.
+
+### Environment variables
+
+| Variable | Description |
+| --- | --- |
+| `OPENAI_API_KEY` | OpenAI API key used for story and description generation |
+| `YOUTTUBE_API_KEY` | Google/YouTube Data API key |
+| `YOUTUBE_CHANNEL_ID` | Target channel ID, used by the upload-scheduling scripts |
+| `YOUTUBE_UPLOADS_PLAYLIST_ID` | Channel's uploads playlist ID, used to enumerate existing videos |
 
 ## Usage
 
-To use the project, you need to call the story creator, be sure to call it while inside the corresponding folder. After that call the video creator, this will compile everything into a video, and upload the video to YouTube.
+Run a category's story creator from inside that category's folder, then run the video creator to compile and upload the result. Some auxiliary scripts (e.g. YouTube Studio automation) rely on Selenium and require a local Chrome/Firefox installation.

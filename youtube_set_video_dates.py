@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from datetime import datetime, timedelta
 import locale
 import time
@@ -13,6 +14,7 @@ import undetected_chromedriver as uc
 date_start = "21 nov 2024"
 number_of_days = 25
 videos_per_date = 3
+channel_id = os.environ["YOUTUBE_CHANNEL_ID"]
 locale.setlocale(locale.LC_TIME, 'es_EC.utf8')
 driver = uc.Chrome()
 driver.set_page_load_timeout(60)
@@ -154,10 +156,10 @@ def run_loop(is_short: bool):
     while True:
         if not is_short:
             # Videos page
-            driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/upload?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
+            driver.get(f"https://studio.youtube.com/channel/{channel_id}/videos/upload?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
         else:
             # Shorts page
-            driver.get("https://studio.youtube.com/channel/REDACTED_CHANNEL_ID/videos/short?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
+            driver.get(f"https://studio.youtube.com/channel/{channel_id}/videos/short?filter=%5B%7B%22name%22%3A%22VISIBILITY%22%2C%22value%22%3A%5B%22DRAFT%22%5D%7D%5D&sort=%7B%22columnType%22%3A%22views%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D")
 
         # Verify if the "no content" message is present
         videos_div = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="video-list"]/div/div[2]')))

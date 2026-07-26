@@ -35,7 +35,7 @@ def actualizar_videos(client_secrets_file):
         pickle.dump(youtube, open("youtube.pickle", "wb"))
 
     # Obtener la lista de videos del canal (incluyendo privados)
-    playlist_id = "REDACTED_PLAYLIST_ID"  # ID de la lista de reproducción de subidas del canal
+    playlist_id = os.environ["YOUTUBE_UPLOADS_PLAYLIST_ID"]  # ID de la lista de reproducción de subidas del canal
 
     next_page_token = None
     total_results = 0
