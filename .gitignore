@@ -18,3 +18,11 @@
 
 # Ignore any files ending with "mp4"
 **/*mp4
+
+# Secrets and credentials - never commit these
+**/.env
+client_secret_oauth.json
+credenciales.json
+midjourney_go_api_key.txt
+twillio_recovery.txt
+*.pickle
